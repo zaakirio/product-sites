@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assay - Document extraction you can sign off on</title>
+<meta name="description" content="An invoice extraction pipeline with a per-field eval harness on real SROIE 2019 receipts and a synthetic stress-test arm: doc accuracy 2.0% real vs 50.0% synthetic on a 1.2B reference model, measured before go-live, not promised.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;650;800&family=Martian+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+:root {
+  --accent: oklch(0.75 0.14 87);
+  --accent-bright: oklch(0.82 0.15 89);
+  --accent-ink: oklch(0.2 0.04 87);
+  --accent-tint: oklch(0.75 0.14 87 / 0.12);
+}
+.family { flex-wrap: wrap; }
+.family .gh { min-width: 0; overflow-wrap: anywhere; }
+.two-col > * { min-width: 0; }
+code { overflow-wrap: anywhere; }
+</style>
+</head>
+<body>
+
+<header class="family">
+  <a href="https://zaakir.io">foundry</a>
+  <span class="sep">/</span>
+  <span aria-current="page">assay</span>
+  <a class="gh" href="https://github.com/zaakirio/assay">github.com/zaakirio/assay</a>
+</header>
+
+<main>
+
+<section class="hero" aria-labelledby="hero-h">
+  <div class="wrap">
+    <h1 id="hero-h">Assay</h1>
+    <p class="tag">Document extraction you can sign off on.</p>
+    <p class="what">The two invoice-automation failure modes that actually cost money are a wrong total posted silently and a duplicate payment from a mis-keyed invoice number, so the bar is not "usually right".
+    Assay extracts structured data from PDFs with an LLM behind any OpenAI-compatible endpoint, validates it against business rules, scores its own confidence, and routes anything uncertain to a human review queue instead of letting it silently reach the ERP.
+    Its centerpiece is a per-field eval harness that tells you, before go-live, exactly which fields you can trust and which you cannot.</p>
+    <div class="cta-row">
+      <a class="btn primary" href="https://github.com/zaakirio/assay">View on GitHub</a>
+      <a class="btn ghost" href="#quickstart">Quickstart</a>
+    </div>
+    <div class="hero-art">
+      <img src="assets/banner.svg" alt="Assay banner: a document card with per-field confidence bars, where vendor, invoice number, total, and line items carry green ticks and tax carries a question mark routed to review, next to the wordmark and the tagline 'Document extraction you can sign off on'." width="1280" height="320">
+    </div>
+  </div>
+</section>
+
+<section class="measured" aria-label="Measured extraction numbers">
+  <div class="wrap">
+    <div class="cell"><div class="v num">2.0%</div><div class="k">doc accuracy on real SROIE receipts (all 4 fields correct)</div></div>
+    <div class="cell"><div class="v num">50.0%</div><div class="k">doc accuracy on the synthetic arm, same model, same harness</div></div>
+    <div class="cell"><div class="v num">86.0%</div><div class="k">total-field exact match on real receipts</div></div>
+    <div class="cell"><div class="v num">0</div><div class="k">schema failures across both runs (constrained decoding)</div></div>
+    <div class="cell"><div class="v num">51</div><div class="k">offline tests, no model needed</div></div>
+  </div>
+  <div class="wrap"><p class="src">source: assay eval (32 synthetic invoices) + assay eval --dataset sroie --limit 50 (SROIE 2019 real receipts) · LFM2.5-1.2B Q4_K_M via llama.cpp on M4 Pro · runs 2026-07-07 · full outputs in results/</p></div>
+</section>
+
+<section aria-labelledby="how-h">
+  <div class="wrap">
+    <h2 id="how-h">How it works</h2>
+    <p class="lede">Each stage is a separate testable module, and one Pydantic model is the single source of truth: it generates the JSON schema that llama.cpp compiles into a decoding grammar, drives validation, and defines the eval fields, so the extractor, validator, and scorer cannot drift apart.
+    Confidence is a transparent weighted sum of three inspectable components (business-rule score, model self-check, key-field completeness), not a learned score, so a reviewer can read exactly why a document is in their queue.</p>
+    <div class="frame" style="margin-top: 34px;">
+      <div class="bar">pipeline</div>
+      <pre> PDF ──&gt; ingest ──&gt; extract ──────────&gt; validate ──&gt; confidence ──&gt; route ──&gt; export
+         pypdf      local LLM           Pydantic +    schema-valid   ├─ auto-accept ──&gt; accepted.jsonl (ERP feed)
+         layout     constrained         business      + rule-pass    └─ review ───────&gt; review_queue.jsonl
+         mode       decoding via        rules         + model                              │
+                    JSON schema            │          self-check                     assay review (human CLI)
+                    (llama.cpp GBNF)       │                                               │
+                            ▲              │ validator errors                        reviewed.jsonl
+                            └── repair ────┘ (one retry)</pre>
+    </div>
+    <p style="margin-top: 28px; max-width: var(--measure); color: var(--ink-mid);">The harness runs on two arms with two distinct jobs.
+    Real data (SROIE 2019 scanned receipts) keeps the numbers honest; the 32-invoice synthetic arm is a controlled stress test that plants ambiguity, typos, and contradictions on purpose, with ground truth emitted by the same code that renders the PDFs.
+    The synthetic arm flagged the day/month transposition failure class before any real document was scored; on the real arm, 9 of the 22 date errors were exactly that.</p>
+  </div>
+</section>
+
+<section aria-labelledby="out-h">
+  <div class="wrap">
+    <h2 id="out-h">The per-field report, real receipts</h2>
+    <p class="lede">Real documents are dramatically harder than designed ones: doc-level accuracy fell from 50.0% synthetic to 2.0% real on the same model and harness.
+    Exposing that gap before go-live is exactly what the real-data arm is for.</p>
+    <div class="two-col" style="margin-top: 34px;">
+      <div class="frame">
+        <div class="bar">results/sroie/eval_report · first 50 of 361 test receipts</div>
+        <pre>field     precision  recall  exact   n
+company       60.0%   60.0%  60.0%  50
+date          59.6%   56.0%  56.0%  50
+address        <span class="hl">4.0%</span>    4.0%   4.0%  50
+total         <span class="ok">86.0%</span>   86.0%  86.0%  50
+
+doc accuracy (all 4 fields)   <span class="hl">2.0%</span>
+auto-accepted at 0.85         26.0%
+schema failures               <span class="ok">0</span></pre>
+      </div>
+      <div>
+        <p style="color: var(--ink-mid);">The address number is mostly a data-ceiling story, and the harness quantifies it: on 41 of the 50 receipts at least one fragment of the annotated address never appears in the provided OCR text at all, so the achievable ceiling on this slice is 18% for any model reading this input.
+        Date errors repeat the transposition class the synthetic arm predicted.
+        Company fails by picking the wrong header line (a cashier's name over the business name); total fails by selecting a nearby plausible amount, not by arithmetic.</p>
+        <p style="margin-top: 18px; color: var(--ink-mid);">Routing on real data is the sobering result: 26.0% of receipts auto-accepted, and every auto-accepted receipt had at least one wrong field, almost always the address.
+        The honest operational conclusion: on real receipts with this model, automation is total-and-date triage at best, and the address field must never be an auto-accept criterion.
+        The per-field report is what tells you that before you promise otherwise.</p>
+      </div>
+    </div>
+    <div class="two-col" style="margin-top: 32px;">
+      <div>
+        <p style="color: var(--ink-mid);">On the synthetic arm the same threshold is an explicit business dial, and the eval measures the tradeoff on this model: with a 1.2B you can have volume or safety, not both.
+        That is the evidence you need to justify a bigger model; everything speaks <code>/v1/chat/completions</code>, so pointing <code>--url</code> at a cloud frontier model re-scores that backend with the identical harness and watches this table move.</p>
+        <p style="margin-top: 18px; color: var(--ink-mid);">Cost per document, measured on the synthetic run: mean 1,881 tokens and 2.72 s/doc locally ($0 marginal); at list prices the same documents would cost about $0.00127 each on GPT-5 mini or $0.00370 on Claude Haiku 4.5.
+        At these volumes cloud inference cost is a rounding error next to one mis-posted invoice; the argument for local is data residency and control, not dollars.</p>
+      </div>
+      <div class="frame">
+        <div class="bar">threshold sweep · synthetic arm, 32 invoices</div>
+        <pre>threshold  auto-accepted  silently wrong among accepted
+0.75       22/32 (69%)    6 docs
+0.80       16/32 (50%)    4 docs
+<span class="hl">0.85        6/32 (19%)    1 doc   &lt;- shipped</span>
+
+<span class="dim"># the 1 silent error: inv_004, symbol-only "$" on an</span>
+<span class="dim"># Australian vendor, extracted as USD. designed ambiguity,</span>
+<span class="dim"># and the argument for a rule: symbol-only currencies</span>
+<span class="dim"># never auto-accept.</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="quickstart" aria-labelledby="qs-h">
+  <div class="wrap">
+    <h2 id="qs-h">Quickstart</h2>
+    <p class="lede">The 51 tests and the synthetic golden set need no model at all. The reference runs use a local llama-server, but <code>ASSAY_LLM_URL</code> points the pipeline at any OpenAI-compatible endpoint.</p>
+    <div class="frame" style="margin-top: 34px;">
+      <div class="bar">terminal</div>
+      <pre><span class="dim">$</span> uv sync
+<span class="dim">$</span> uv run pytest                 <span class="dim"># 51 offline tests, no model needed</span>
+
+<span class="dim"># serve a model first (reference-run setup shown)</span>
+<span class="dim">$</span> /path/to/llama-server -m LFM2.5-1.2B-Instruct-Uncensored-Q4_K_M.gguf \
+    --port 8093 --jinja -ngl 99 --ctx-size 4096
+
+<span class="dim">$</span> uv run assay generate         <span class="dim"># synthetic golden set (deterministic, seed 42)</span>
+<span class="dim">$</span> uv run assay eval             <span class="dim"># synthetic arm -&gt; results/</span>
+<span class="dim">$</span> uv run --extra sroie python scripts/fetch_sroie.py   <span class="dim"># SROIE 2019 (~216 MB)</span>
+<span class="dim">$</span> uv run assay eval --dataset sroie --limit 50         <span class="dim"># real arm -&gt; results/sroie/</span>
+
+<span class="dim">$</span> uv run assay run data/golden/inv_001.pdf   <span class="dim"># single document, prints JSON</span>
+<span class="dim">$</span> uv run assay review           <span class="dim"># work the review queue in the terminal</span></pre>
+    </div>
+  </div>
+</section>
+
+<section class="honest" aria-labelledby="honest-h">
+  <div class="wrap">
+    <h2 id="honest-h">Honest limitations</h2>
+    <ul>
+      <li>All reference numbers are from a deliberately small 1.2B local model. It is not good enough to run this unattended, and the harness proves that with per-field granularity; the pipeline is the deliverable, the model is a placeholder you swap via <code>--url</code>.</li>
+      <li>The invoice golden set is synthetic; layouts are messy in designed ways, not in the ways a decade of real supplier PDFs are messy. The SROIE arm measures that gap (50.0% to 2.0%) instead of guessing at it.</li>
+      <li>SROIE annotations carry known noise: address fragments absent from the provided OCR cap that field at an 18% ceiling on this slice, a property of the benchmark, not of the pipeline.</li>
+      <li>The SROIE reference run covers the first 50 receipts of the 361-receipt test split, one model, one machine; run the full split by dropping <code>--limit</code>.</li>
+      <li>Text-layer PDFs and pre-OCR'd text only; there is no OCR stage of its own yet, so scanned and photographed invoices need one in front of ingest.</li>
+      <li>The routing threshold was chosen by sweeping on the same 32 documents it is evaluated on; production would hold out a tuning set.</li>
+      <li>The self-check adds a second model call per document (roughly 40% of latency) and its signal on a 1.2B is weak; the repair loop retried 8 times and improved nothing at this model size.</li>
+      <li>Cloud costs are estimates from list prices, and throughput numbers are from one run on one M4 Pro.</li>
+    </ul>
+    <p class="why">This section is not small print. An accuracy number without its failure modes is an advert, and this page is a datasheet.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>the foundry family</span>
+    <nav aria-label="Product family">
+      <a href="https://anvil.zaakir.io">anvil</a>
+      <a href="https://assay.zaakir.io" aria-current="page">assay</a>
+      <a href="https://bellows.zaakir.io">bellows</a>
+      <a href="https://crucible.zaakir.io">crucible</a>
+      <a href="https://flux.zaakir.io">flux</a>
+      <a href="https://ingot.zaakir.io">ingot</a>
+      <a href="https://quench.zaakir.io">quench</a>
+      <a href="https://sluice.zaakir.io">sluice</a>
+      <a href="https://github.com/zaakirio">github</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

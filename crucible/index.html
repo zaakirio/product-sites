@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crucible · what survives quantization, abliteration, and serving</title>
+<meta name="description" content="Crucible is a forensic eval workbench for self-hosted models: capability, refusal behavior, tool calling, RAG, base-vs-abliterated deltas. Measured: SORRY-Bench complied 8 to 34, GSM8K 61% to 66%. pip install crucible-eval.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;650;800&family=Martian+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+:root{
+  --accent: oklch(0.64 0.192 42);
+  --accent-bright: oklch(0.74 0.185 45);
+  --accent-ink: oklch(0.16 0.045 42);
+  --accent-tint: oklch(0.64 0.192 42 / 0.12);
+}
+.shots{display:grid;gap:28px;margin-top:40px}
+@media(min-width:920px){.shots{grid-template-columns:1fr 1fr}.shots .full{grid-column:1/-1}}
+.how-frame{margin-top:40px}
+.family{flex-wrap:wrap}
+.family .gh{overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+
+<header class="family">
+  <a href="https://zaakir.io">foundry</a>
+  <span class="sep">·</span>
+  <strong>crucible</strong>
+  <a class="gh" href="https://github.com/zaakirio/crucible">github.com/zaakirio/crucible ↗</a>
+</header>
+
+<main>
+
+<div class="hero">
+  <div class="wrap">
+    <h1>Crucible</h1>
+    <p class="tag">What survives quantization, abliteration, and serving.</p>
+    <p class="what">
+      Most leaderboards benchmark remote frontier APIs or unserved model snapshots. Your
+      GGUF on your hardware behind your server is a different artifact, and that is the one
+      your users get. Crucible talks to any running OpenAI-compatible server and evaluates
+      a model exactly as it is served: same chat template, same samplers, same tool-call
+      parsing. Base versus abliterated is the first-class workflow, and every run records
+      provenance hashes so a score shift is attributable.
+    </p>
+    <div class="cta-row">
+      <a class="btn primary" href="https://github.com/zaakirio/crucible">View on GitHub</a>
+      <a class="btn ghost" href="#quickstart">Quickstart</a>
+    </div>
+    <div class="hero-art">
+      <img src="assets/banner.svg" alt="crucible banner: a melt gradient from ember orange down to char, the crucible vessel motif" width="1280" height="320">
+    </div>
+  </div>
+</div>
+
+<aside class="measured" aria-label="Measured numbers">
+  <div class="wrap">
+    <div class="cell"><div class="v num">8 &rarr; 34</div><div class="k">SORRY-Bench complied, base vs abliterated (+26 of 45)</div></div>
+    <div class="cell"><div class="v num">26 &rarr; 5</div><div class="k">outright refusals, base vs abliterated (-21 of 45)</div></div>
+    <div class="cell"><div class="v num">66%</div><div class="k">GSM8K, up from the base's 61%, inside the 5pp regression gate</div></div>
+    <div class="cell"><div class="v num">38/50</div><div class="k">keyword grader agreement with blind human labels (76%)</div></div>
+    <div class="cell"><div class="v num">57</div><div class="k">unit tests, offline, no model or API key needed</div></div>
+  </div>
+  <div class="wrap">
+    <p class="src">measured 2026-06-29 on an Apple M4 Pro: LFM2.5-1.2B base vs Heretic-abliterated, Q4_K_M, LLM-judge graded, n=45 per refusal suite; grader agreement from crucible label; see the README and charts/evidence.html.</p>
+  </div>
+</aside>
+
+<section id="how">
+  <div class="wrap">
+    <h2>The abliteration workflow</h2>
+    <p class="lede">
+      The core use case: prove your abliterated model is more open than the base without
+      being dumber. Three commands against whatever server you already run (Ollama,
+      LM Studio, vLLM, llama-server), or let Crucible spawn llama-server itself for a
+      local GGUF.
+    </p>
+    <ol class="ledger">
+      <li><span class="lk">01</span><div><b>Eval both builds.</b><p>Every suite runs against the live server: GSM8K and GSM-Symbolic for capability, SORRY-Bench, XSTest, OR-Bench-Hard and FalseReject for refusal profiles, BFCL v4 for tool calling, plus RAG and agent loops. 527 prompts across 19 categories, resumable.</p></div></li>
+      <li><span class="lk">02</span><div><b>Judge-grade the refusals.</b><p>The keyword grader is instant and deterministic; crucible grade adds an LLM judge layer (Claude, DeepSeek, OpenAI, or any OpenAI-compatible URL) with complied / hedged / refused verdicts stored alongside, never overwriting. Model cards show both graders side by side.</p></div></li>
+      <li><span class="lk">03</span><div><b>Compare and gate.</b><p>crucible compare produces the delta that matters: did refusals move to complies, did capability survive. crucible gate exits nonzero in CI if the candidate regresses more than 5pp, in either direction, including over-refusal creep.</p></div></li>
+    </ol>
+    <div class="frame how-frame">
+      <div class="bar">crucible · zsh</div>
+      <pre><span class="dim"># 1. eval the base model</span>
+<span class="hl">crucible</span> run --server http://localhost:11434/v1 --model-name base-model --workers 4
+
+<span class="dim"># 2. eval the abliterated model</span>
+<span class="hl">crucible</span> run --server http://localhost:11434/v1 --model-name uncensored-model --workers 4
+
+<span class="dim"># 3. compare, judge-grade, publish</span>
+<span class="hl">crucible</span> compare &lt;base-run-id&gt; &lt;abliterated-run-id&gt;
+<span class="hl">crucible</span> grade &lt;run-id&gt; --judge claude --api-key $ANTHROPIC_API_KEY
+<span class="hl">crucible</span> model-card &lt;run-id&gt; --out model-card.md   <span class="ok"># both graders, provenance hashes</span></pre>
+    </div>
+  </div>
+</section>
+
+<section id="lab">
+  <div class="wrap">
+    <h2>Crucible Lab</h2>
+    <p class="lede">
+      An interactive workbench over the results database: browse runs, drill into
+      per-prompt transcripts with keyword, judge, and human verdicts side by side, diff two
+      runs, and chat against the same server Crucible evaluates. Every aggregate is one
+      click from the raw transcripts that produced it.
+    </p>
+    <div class="shots">
+      <figure class="shot full">
+        <img src="assets/lab-runs.png" alt="Crucible Lab runs table: 34 runs and 6,185 results over LFM2.5 and ornith models, each row with a capability bar and a complied/hedged/refused refusal profile" width="1440" height="900" loading="lazy">
+        <figcaption>34 runs, 6,185 results, 624 judge verdicts in one results.db. Refusal categories render as a profile, never a single collapsed score.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="assets/lab-compare.png" alt="Crucible Lab diff view: base LFM2.5-1.2B against the abliterated build, category by category, sorrybench +26 complied highlighted green and a 25 percent rag_faithfulness drop flagged red" width="1440" height="900" loading="lazy">
+        <figcaption>The diff that headlines this page: sorrybench +26 complied, and the compare view flags any capability drop of 15pp or more.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="assets/lab-playground.png" alt="Crucible Lab playground: a chat streaming against the same local llama-server endpoint that the eval runs scored" width="1440" height="900" loading="lazy">
+        <figcaption>The playground talks to the same server Crucible evaluates, so what you probe is what got scored.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="quickstart">
+  <div class="wrap">
+    <h2>Quickstart</h2>
+    <p class="lede">
+      Requirements: any running OpenAI-compatible inference server. No llama.cpp build
+      required. The judge is always explicit; Crucible never guesses one from whichever
+      env var happens to be set.
+    </p>
+    <div class="frame how-frame">
+      <div class="bar">install · zsh</div>
+      <pre><span class="hl">pip</span> install crucible-eval
+
+<span class="dim"># single model: generates ornith-9b-eval/model-card.md</span>
+<span class="hl">crucible</span> eval --server http://localhost:11434/v1 \
+  --model-name ornith-9b-uncensored --judge claude --workers 4
+
+<span class="dim"># base vs abliterated: delta-focused model card in one command</span>
+<span class="hl">crucible</span> eval --server http://localhost:11434/v1 \
+  --model-name ornith-9b-uncensored --base ornith-9b-base --judge claude --workers 4
+
+<span class="dim"># the web workbench over results.db</span>
+<span class="hl">pip</span> install "crucible-eval[lab]"
+<span class="hl">crucible</span> lab    <span class="dim"># http://127.0.0.1:7860</span></pre>
+    </div>
+  </div>
+</section>
+
+<section class="honest">
+  <div class="wrap">
+    <h2>Limitations, stated plainly</h2>
+    <ul>
+      <li>The keyword refusal grader is deterministic but blunt: 76% agreement with blind human labels (38/50), erring toward calling hedged responses complied. Treat keyword-only refusal numbers as a lower bound on hedging; use crucible grade before publishing a delta.</li>
+      <li>The hand-authored suites are small (agent_tool n=3, rag n=3-4, agent_dialogue n=3, starters n=6-8); they are smoke signals, not benchmarks. The published-dataset categories (GSM8K, GSM-Symbolic, SORRY-Bench, XSTest, OR-Bench, FalseReject, BFCL) carry the statistical weight.</li>
+      <li>Single-run scores on small n flap; --repeat 3 measures the noise floor and is worth running before trusting any delta under about 10pp.</li>
+      <li>All numbers on this page come from one machine (Apple M4 Pro, 24 GB, Metal); provenance hashes make runs attributable, not portable across hardware or llama.cpp versions.</li>
+      <li>This repo has no CI pipeline or Dockerfile yet; the regression gate is built for a downstream model repo's CI rather than proven in this one's.</li>
+    </ul>
+    <p class="why">Copied from the Limitations section of the crucible README, 2026-07-08. If a number on this page and the repo ever disagree, the repo wins.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>crucible is part of the foundry family</span>
+    <nav aria-label="Foundry family">
+      <a href="https://flux.zaakir.io">flux</a>
+      <a href="https://quench.zaakir.io">quench</a>
+      <a href="https://anvil.zaakir.io">anvil</a>
+      <a href="https://bellows.zaakir.io">bellows</a>
+      <a href="https://assay.zaakir.io">assay</a>
+      <a href="https://ingot.zaakir.io">ingot</a>
+      <a href="https://sluice.zaakir.io">sluice</a>
+      <a href="https://github.com/zaakirio/crucible">github ↗</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

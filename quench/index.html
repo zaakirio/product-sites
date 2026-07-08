@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>quench · triage the incident, approve the fix</title>
+<meta name="description" content="quench is an agent that triages a failed GitHub Actions run end to end and never writes to your repo without a human saying yes. 30 unit tests, 14 trajectory evals with 78 checks, 12 real recorded CI failures.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;650;800&family=Martian+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+:root{
+  --accent: oklch(0.7 0.123 178);
+  --accent-bright: oklch(0.78 0.128 178);
+  --accent-ink: oklch(0.17 0.035 178);
+  --accent-tint: oklch(0.7 0.123 178 / 0.12);
+  --hot: oklch(0.66 0.17 32);
+}
+.shots{display:grid;gap:28px;margin-top:40px}
+@media(min-width:920px){.shots{grid-template-columns:1fr 1fr}.shots .full{grid-column:1/-1}}
+.how-frame{margin-top:40px}
+.family{flex-wrap:wrap}
+.family .gh{overflow-wrap:anywhere}
+.frame .hot{color:var(--hot)}
+</style>
+</head>
+<body>
+
+<header class="family">
+  <a href="https://zaakir.io">foundry</a>
+  <span class="sep">·</span>
+  <strong>quench</strong>
+  <a class="gh" href="https://github.com/zaakirio/quench">github.com/zaakirio/quench ↗</a>
+</header>
+
+<main>
+
+<div class="hero">
+  <div class="wrap">
+    <h1>quench</h1>
+    <p class="tag">Triage the incident. Approve the fix.</p>
+    <p class="what">
+      Someone has to open the failed CI run, read the logs, work out the failure class,
+      and decide whether to re-run, fix, or escalate. quench does that first pass: it
+      ingests a failed GitHub Actions run, investigates it with read-only tools, classifies
+      the failure, produces a structured, evidence-cited diagnosis, and drafts one
+      recommended action. Then it stops. Every write is human-gated and dry-run by default.
+    </p>
+    <div class="cta-row">
+      <a class="btn primary" href="https://github.com/zaakirio/quench">View on GitHub</a>
+      <a class="btn ghost" href="#quickstart">Quickstart</a>
+    </div>
+    <div class="hero-art">
+      <img src="assets/banner.svg" alt="quench banner: a hot-red incident wave cooling to teal, the quench motif" width="1280" height="320">
+    </div>
+  </div>
+</div>
+
+<aside class="measured" aria-label="Measured numbers">
+  <div class="wrap">
+    <div class="cell"><div class="v num">30</div><div class="k">unit tests, offline, no API key needed</div></div>
+    <div class="cell"><div class="v num">14/78</div><div class="k">trajectory evals / checks, all passing, gated in CI</div></div>
+    <div class="cell"><div class="v num">12</div><div class="k">real recorded CI failures as eval fixtures (astro, prettier, hono, zod, svelte, express + this portfolio)</div></div>
+    <div class="cell"><div class="v num">$0.0684</div><div class="k">cost of one triage, metered from token usage (offline reference)</div></div>
+    <div class="cell"><div class="v num">100%</div><div class="k">of writes behind human approval, asserted by the evals</div></div>
+  </div>
+  <div class="wrap">
+    <p class="src">measured 2026-07-08: npm test and npm run eval on that day's HEAD; per-triage cost from the offline flux demo trace of the same date (deterministic stand-in model, see limitations).</p>
+  </div>
+</aside>
+
+<section id="how">
+  <div class="wrap">
+    <h2>How a triage runs</h2>
+    <p class="lede">
+      The evals assert the trajectory, not just the final text: did it fetch evidence before
+      proposing an action, classify the failure correctly, pause for approval before any
+      write, stay within budget, and cite real log evidence.
+    </p>
+    <ol class="ledger">
+      <li><span class="lk">01</span><div><b>Ingest.</b><p>A failed workflow run comes in as repo plus run id.</p></div></li>
+      <li><span class="lk">02</span><div><b>Investigate, read-only.</b><p>Fetch the run, its jobs and failed steps, the failure annotations, the failing commit diff, and recent runs of the same workflow to gauge flakiness. Read tools have no side effects.</p></div></li>
+      <li><span class="lk">03</span><div><b>Classify and diagnose.</b><p>A cheap claude-haiku-4-5 first pass, then a claude-sonnet-5 investigation that records a structured diagnosis: failure_class, root_cause, confidence, cited evidence, flakiness_assessment, recommended_action.</p></div></li>
+      <li><span class="lk">04</span><div><b>Act, behind approval.</b><p>Re-run failed jobs, post a diagnostic comment, or open a fix PR. Each is a tool marked needsApproval, defaults to dry-run, and renders an approval card in the UI that gates continuation. A rejected approval blocks the write, and a dedicated eval proves it.</p></div></li>
+      <li><span class="lk">05</span><div><b>Stay in budget.</b><p>A hard cap on steps, tokens, and dollars, summed across every model call, with an explicit stop.</p></div></li>
+    </ol>
+    <div class="frame how-frame">
+      <div class="bar">record_diagnosis · one real offline triage of zaakirio/crucible run 28951398431</div>
+      <pre>{
+  <span class="hl">"failure_class"</span>:        <span class="hot">"dependency"</span>,          <span class="dim">// haiku first pass: 85% confidence</span>
+  <span class="hl">"root_cause"</span>:           "The 'lab-ui' job failed at step 'Run npm ci',
+                           which points to a dependency failure.",
+  <span class="hl">"evidence"</span>: [
+    { "kind": "job",        "quote": "job concluded 'failure': lab-ui" },
+    { "kind": "step",       "quote": "failed step name: Run npm ci" },
+    { "kind": "annotation", "quote": ".github:106 Process completed with exit code 1." },
+    { "kind": "commit",     "quote": "commit 268a1fd" },
+    { "kind": "recent_runs","quote": "2 recent same-workflow runs (failure/failure)" }
+  ],
+  <span class="hl">"recommended_action"</span>:   <span class="ok">"open_fix_pr"</span>          <span class="dim">// WRITE tool -&gt; waits for approval</span>
+}</pre>
+    </div>
+  </div>
+</section>
+
+<section id="console">
+  <div class="wrap">
+    <h2>The incident console</h2>
+    <p class="lede">
+      Left: the incidents. Center: the streamed agent trajectory. Right: the structured
+      diagnosis and a live cost meter that sums real dollars from token usage across both
+      models.
+    </p>
+    <div class="shots">
+      <figure class="shot full">
+        <img src="assets/01-incident-console.png" alt="quench incident console before a run: twelve recorded incidents in the left rail, a failing lab-ui job for zaakirio/crucible in the center, a zeroed cost meter on the right" width="1280" height="720" loading="lazy">
+        <figcaption>A real recorded failure from this portfolio's own crucible repo, queued for triage. The badge row is honest: fake model, dry-run.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="assets/02-approval-gate.png" alt="quench mid-triage: the trajectory shows classify, fetch run, fetch jobs, fetch evidence, and the right rail already carries a dependency diagnosis with five cited pieces of evidence" width="1280" height="720" loading="lazy">
+        <figcaption>The trajectory streams tool by tool; the diagnosis fills in with evidence quotes pulled from the run itself.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="assets/03-completed-diagnosis.png" alt="quench at the approval gate: record diagnosis is done and the open fix PR write tool is paused, waiting for a human yes" width="1280" height="720" loading="lazy">
+        <figcaption>The stop that matters: open fix PR is a write, so the agent pauses and waits for a human before anything touches the repo.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="quickstart">
+  <div class="wrap">
+    <h2>Quickstart</h2>
+    <p class="lede">
+      Offline by default: a deterministic model drives the real tool loop against recorded
+      fixtures, so everything below runs with no API key. The full matrix (live models,
+      live GitHub, live writes) is in RUN_WITH_KEYS.md.
+    </p>
+    <div class="frame how-frame">
+      <div class="bar">quench · zsh</div>
+      <pre><span class="hl">npm</span> install
+<span class="hl">npm</span> test        <span class="dim"># 30 unit tests</span>
+<span class="hl">npm</span> run eval    <span class="dim"># 14 trajectory evals, 78 assertions</span>
+<span class="hl">npm</span> run build
+<span class="hl">npm</span> run dev     <span class="dim"># http://localhost:3000</span></pre>
+    </div>
+  </div>
+</section>
+
+<section class="honest">
+  <div class="wrap">
+    <h2>Limitations, stated plainly</h2>
+    <ul>
+      <li>Offline diagnosis is deterministic, not sampled: the fake model computes it from the real fixture data via a keyword classifier, so offline evals test trajectory and grounding, not model IQ. Diagnosis quality is tested by the LLM judge, which needs an API key.</li>
+      <li>open_fix_pr is draft-only, even with a token; quench does not generate patches.</li>
+      <li>Raw job logs are not recorded (they need a token). Offline evidence is the failed step names and failure-level check annotations, which are real.</li>
+      <li>The cost figure offline is synthetic (fake-model tokens). A genuinely measured per-triage cost appears once keys are set.</li>
+    </ul>
+    <p class="why">Copied from the Limitations section of the quench README, 2026-07-08. The 12 eval fixtures are real public GitHub Actions failures, used read-only; provenance is in fixtures/README.md.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>quench is part of the foundry family</span>
+    <nav aria-label="Foundry family">
+      <a href="https://flux.zaakir.io">flux</a>
+      <a href="https://anvil.zaakir.io">anvil</a>
+      <a href="https://bellows.zaakir.io">bellows</a>
+      <a href="https://crucible.zaakir.io">crucible</a>
+      <a href="https://assay.zaakir.io">assay</a>
+      <a href="https://ingot.zaakir.io">ingot</a>
+      <a href="https://sluice.zaakir.io">sluice</a>
+      <a href="https://github.com/zaakirio/quench">github ↗</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

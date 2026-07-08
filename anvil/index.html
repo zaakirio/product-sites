@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anvil - Grounded answers, forged from cited sources</title>
+<meta name="description" content="A support agent over real product documentation, evals first: hybrid retrieval with recall@10 0.7404 on 52 real user questions, citation-required answers, deterministic refusals, HITL write boundary, and a CI regression gate.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;650;800&family=Martian+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+:root {
+  --accent: oklch(0.69 0.16 51);
+  --accent-bright: oklch(0.77 0.17 53);
+  --accent-ink: oklch(0.18 0.03 51);
+  --accent-tint: oklch(0.69 0.16 51 / 0.12);
+}
+.family { flex-wrap: wrap; }
+.family .gh { min-width: 0; overflow-wrap: anywhere; }
+.two-col > * { min-width: 0; }
+code { overflow-wrap: anywhere; }
+</style>
+</head>
+<body>
+
+<header class="family">
+  <a href="https://zaakir.io">foundry</a>
+  <span class="sep">/</span>
+  <span aria-current="page">anvil</span>
+  <a class="gh" href="https://github.com/zaakirio/anvil">github.com/zaakirio/anvil</a>
+</header>
+
+<main>
+
+<section class="hero" aria-labelledby="hero-h">
+  <div class="wrap">
+    <h1 id="hero-h">Anvil</h1>
+    <p class="tag">Grounded answers, forged from cited sources.</p>
+    <p class="what">Support agents fail quietly: they hallucinate answers, cite nothing, call the wrong tool, or post things nobody approved.
+    Anvil is a support agent over the real FastAPI documentation, built evals first, so every one of those failure modes is a number CI can watch.
+    Point the ingestion at any markdown docs tree, rebuild the goldens, and the same measurement system holds.</p>
+    <div class="cta-row">
+      <a class="btn primary" href="https://github.com/zaakirio/anvil">View on GitHub</a>
+      <a class="btn ghost" href="#quickstart">Quickstart</a>
+    </div>
+    <div class="hero-art">
+      <img src="assets/banner.svg" alt="Anvil banner: four numbered citation nodes converge onto a bright strike point on an anvil silhouette, next to the wordmark and the tagline 'Grounded answers, forged from cited sources'." width="1280" height="320">
+    </div>
+  </div>
+</section>
+
+<section class="measured" aria-label="Measured retrieval numbers">
+  <div class="wrap">
+    <div class="cell"><div class="v num">0.5673</div><div class="k">recall@5</div></div>
+    <div class="cell"><div class="v num">0.7404</div><div class="k">recall@10</div></div>
+    <div class="cell"><div class="v num">0.5658</div><div class="k">MRR</div></div>
+    <div class="cell"><div class="v num">0.5847</div><div class="k">nDCG@10</div></div>
+    <div class="cell"><div class="v num">+10</div><div class="k">recall@5 points added by the cross-encoder reranker</div></div>
+  </div>
+  <div class="wrap"><p class="src">source: anvil eval retrieval · 52 real user questions (Stack Overflow + GitHub issues) over 1,199 chunks of the real FastAPI docs · hybrid search + cross-encoder rerank, fallback embedder all-MiniLM-L6-v2 (the keyless CI arm)</p></div>
+</section>
+
+<section aria-labelledby="how-h">
+  <div class="wrap">
+    <h2 id="how-h">How it works</h2>
+    <p class="lede">A LangGraph agent with a SQLite checkpointer, budget guards on every run, and a hard write boundary.
+    Retrieval is hybrid: Postgres full-text and pgvector cosine each return 50 candidates, Reciprocal Rank Fusion merges them, and a cross-encoder reranks the top 25 on CPU.
+    The top rerank score doubles as a grounding-confidence signal.</p>
+    <div class="two-col" style="margin-top: 34px;">
+      <ol class="ledger">
+        <li><span class="lk">01</span><div><b>Route</b><p>claude-haiku-4-5 classifies the message: question, action, or smalltalk.</p></div></li>
+        <li><span class="lk">02</span><div><b>Retrieve and rerank</b><p>FTS + pgvector, RRF fusion, then ms-marco-MiniLM-L-6-v2 cross-encoder rerank. Heading-aware chunks give citation targets like <code>tutorial-cors#use-corsmiddleware</code>.</p></div></li>
+        <li><span class="lk">03</span><div><b>Answer or refuse</b><p>Above the confidence threshold, claude-sonnet-5 answers with citations required. Below it, a deterministic refusal fires without spending an LLM call.</p></div></li>
+        <li><span class="lk">04</span><div><b>Act behind a human</b><p><code>get_github_issue</code> fetches live issues; <code>draft_issue_comment</code> is held behind a LangGraph HITL interrupt until a human approves. Nothing is ever posted to GitHub from this codebase.</p></div></li>
+        <li><span class="lk">05</span><div><b>Gate</b><p><code>anvil gate</code> compares every eval run against a committed baseline and exits nonzero when any metric drops more than 0.02. CI runs it on every push.</p></div></li>
+      </ol>
+      <div class="frame">
+        <div class="bar">anvil eval retrieval --embedder fallback</div>
+        <pre><span class="dim"># hybrid + cross-encoder rerank, 52-query golden set</span>
+<span class="hl">recall@5   0.5673</span>
+<span class="hl">recall@10  0.7404</span>
+<span class="hl">MRR        0.5658</span>
+<span class="hl">nDCG@10    0.5847</span>
+
+<span class="dim"># fusion-only (no reranker), same 52 queries</span>
+recall@5   0.4615
+recall@10  0.6250
+MRR        0.4077
+nDCG@10    0.4385
+
+<span class="dim"># reranker is worth ~10 recall points at k=5</span>
+<span class="dim"># and ~15 MRR points on this corpus</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="eval-h">
+  <div class="wrap">
+    <h2 id="eval-h">The eval stack is the product</h2>
+    <p class="lede">Two layers plus a gate, and the numbers are deliberately unglamorous.
+    The questions are real (vague titles, error messages, XY problems) and the corpus is real (1,199 chunks with heavy topical overlap), so the scores are what retrieval actually looks like before you tune it, measured honestly, with a gate that catches regressions from here.</p>
+    <div class="two-col" style="margin-top: 34px;">
+      <div>
+        <ol class="ledger">
+          <li><span class="lk">L1</span><div><b>Retrieval, keyless, gates CI</b><p>52 golden queries: 45 mined from Stack Overflow titles, 7 from FastAPI GitHub issues, each carrying its source URL. Relevant chunks labeled by inspection; every label is validated against the ingested corpus first, so a renamed heading fails loudly.</p></div></li>
+          <li><span class="lk">L2</span><div><b>End-to-end agent, fixture-proven</b><p>42 golden conversations: 16 grounded answers with expected citations, 10 refusals on questions the docs genuinely cannot answer, 10 GitHub-issue lookups with expected arguments, 5 HITL comment drafts (approve and reject paths), 1 smalltalk. Deterministic checks first, then a claude-sonnet-5 judge scores faithfulness and relevancy.</p></div></li>
+          <li><span class="lk">L3</span><div><b>The gate</b><p>GitHub Actions runs lint, the 50-test suite, ingestion, the keyless retrieval eval, and <code>anvil gate</code> on every push. A regression past tolerance goes red.</p></div></li>
+        </ol>
+      </div>
+      <div>
+        <div class="frame">
+          <div class="bar">refusal calibration · measured on the real corpus</div>
+          <pre><span class="dim"># rank-1 rerank score distributions, real data</span>
+answerable (52):  median 4.4, 5 of 52 below 0
+known gaps (10):  range -9.7 to 4.6, 4 of 10 below 0
+
+deterministic threshold: <span class="hl">0.0</span> (the cross-encoder&#39;s
+own relevance boundary)
+
+<span class="dim"># the populations overlap; 3 of 10 gap questions</span>
+<span class="dim"># score above threshold and rely on the</span>
+<span class="dim"># prompt-layer refusal. two layers by design.</span></pre>
+        </div>
+        <p style="margin-top: 22px; color: var(--ink-mid);">Every LLM call writes node, model, and exact token counts to a JSONL ledger, so <code>anvil report</code> prints cost per conversation from counted tokens, not a guess.
+        A stdio MCP server (<code>anvil-mcp</code>) exposes <code>search_docs</code> and <code>get_github_issue</code> against the same backend; comment drafts stay agent-only because they belong behind the HITL interrupt.
+        Generation is provider-agnostic through <code>init_chat_model</code>: Anthropic by default, or set <code>ANVIL_ANSWER_MODEL</code> to an <code>openai:</code>, <code>google_genai:</code>, or other provider-qualified model.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="quickstart" aria-labelledby="qs-h">
+  <div class="wrap">
+    <h2 id="qs-h">Quickstart</h2>
+    <p class="lede">The committed corpus snapshot (118 pages of the FastAPI docs at a pinned commit) means no network and no API keys are needed for any of this.</p>
+    <div class="frame" style="margin-top: 34px;">
+      <div class="bar">terminal</div>
+      <pre><span class="dim">$</span> docker compose up -d postgres
+<span class="dim">$</span> uv sync
+<span class="dim">$</span> uv run anvil ingest --embedder fallback   <span class="dim"># keyless; --embedder openai with a key</span>
+<span class="dim">$</span> uv run anvil eval retrieval --embedder fallback
+<span class="dim">$</span> uv run anvil gate
+<span class="dim">$</span> uv run pytest                              <span class="dim"># 50 tests</span>
+
+<span class="dim"># with ANTHROPIC_API_KEY set:</span>
+<span class="dim">$</span> uv run anvil ask <span class="hl">"How do I enable CORS?"</span>
+<span class="dim">$</span> uv run anvil chat
+<span class="dim">$</span> uv run anvil eval agent
+<span class="dim">$</span> uv run anvil report</pre>
+    </div>
+  </div>
+</section>
+
+<section class="honest" aria-labelledby="honest-h">
+  <div class="wrap">
+    <h2 id="honest-h">Honest limitations</h2>
+    <ul>
+      <li>The headline retrieval numbers are from the fallback embedder on a 1,199-chunk corpus. They establish the harness and the CI gate, not a claim about tuned production retrieval; the obvious headroom (stronger embedder, query rewriting, chunk-size tuning) is what the gate exists to measure.</li>
+      <li>The agent-eval layer is fully wired and fixture-proven, but the numbers it produces require API keys this environment does not have. RUN_WITH_KEYS.md is the one-command path once they exist.</li>
+      <li>The refusal threshold does not cleanly split answerable from unanswerable on real data: three of the ten golden gap questions score above it and depend on the prompt-layer refusal.</li>
+      <li>The LLM judge inherits judge variance; deterministic checks are separated precisely so the gate can hold them to a tighter tolerance than judge scores.</li>
+      <li>At this corpus size pgvector runs exact scans (no ANN index), which is the right call here and would need revisiting at 100x scale.</li>
+      <li><code>draft_issue_comment</code> records and resolves drafts but never posts to GitHub; wiring the authenticated post-after-approval call is deliberately out of scope.</li>
+      <li>Golden labels are one person's judgment of relevance; the per-query output in <code>eval_results/</code> exists so any label can be audited against its source URL.</li>
+    </ul>
+    <p class="why">This section is not small print. A retrieval number without its failure modes is an advert, and this page is a datasheet.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>the foundry family</span>
+    <nav aria-label="Product family">
+      <a href="https://anvil.zaakir.io" aria-current="page">anvil</a>
+      <a href="https://assay.zaakir.io">assay</a>
+      <a href="https://bellows.zaakir.io">bellows</a>
+      <a href="https://crucible.zaakir.io">crucible</a>
+      <a href="https://flux.zaakir.io">flux</a>
+      <a href="https://ingot.zaakir.io">ingot</a>
+      <a href="https://quench.zaakir.io">quench</a>
+      <a href="https://sluice.zaakir.io">sluice</a>
+      <a href="https://github.com/zaakirio">github</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

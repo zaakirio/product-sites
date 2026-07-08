@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-label="sluice - route every token, account for every cent">
+  <defs>
+    <linearGradient id="sl-flow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#3d8bd4" stop-opacity="0.15"/>
+      <stop offset="1" stop-color="#3d8bd4" stop-opacity="0.85"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="320" fill="#12151a"/>
+
+  <!-- FULL-WIDTH ROUTING DIAGRAM: one inflow (left) metered into three priced lanes (right).
+       The wordmark sits at the source; the diagram is the composition. -->
+  <!-- source node + wordmark -->
+  <g transform="translate(70,0)">
+    <text x="0" y="150" font-family="-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="72" font-weight="800" letter-spacing="-2" fill="#eaf1f8">sluice</text>
+    <text x="4" y="188" font-family="-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="21" fill="#9fb2c4">Route every token, account for every cent.</text>
+    <circle cx="14" cy="212" r="7" fill="#3d8bd4"/>
+    <text x="34" y="217" font-family="ui-monospace,'SF Mono',Menlo,Consolas,monospace" font-size="13" fill="#6f8296">one OpenAI-compatible endpoint · policy routing · retries + breakers · cost ledger</text>
+  </g>
+
+  <!-- the gate: flow splits from a single trunk into three lanes -->
+  <g transform="translate(560,0)" fill="none" stroke-linecap="round">
+    <!-- trunk -->
+    <path d="M0 160 H120" stroke="url(#sl-flow)" stroke-width="14"/>
+    <!-- split point -->
+    <circle cx="120" cy="160" r="9" fill="#3d8bd4" stroke="none"/>
+    <!-- three routed lanes at different costs -->
+    <path d="M120 160 C 200 160 200 78 300 78" stroke="#3d8bd4" stroke-width="9" opacity="0.9"/>
+    <path d="M120 160 C 200 160 200 160 300 160" stroke="#3d8bd4" stroke-width="9" opacity="0.6"/>
+    <path d="M120 160 C 200 160 200 242 300 242" stroke="#3d8bd4" stroke-width="9" opacity="0.4"/>
+  </g>
+
+  <!-- lane endpoints with price tags (right) -->
+  <g transform="translate(860,0)" font-family="ui-monospace,'SF Mono',Menlo,Consolas,monospace">
+    <g transform="translate(0,78)">
+      <rect x="0" y="-20" width="300" height="40" rx="8" fill="#1b222b" stroke="#2f3d4a"/>
+      <circle cx="24" cy="0" r="6" fill="#7fb4e6"/>
+      <text x="42" y="5" font-size="15" fill="#cdd9e4">sonnet-5</text>
+      <text x="292" y="5" text-anchor="end" font-size="14" fill="#3d8bd4">$3 / $15</text>
+    </g>
+    <g transform="translate(0,160)">
+      <rect x="0" y="-20" width="300" height="40" rx="8" fill="#1b222b" stroke="#2f3d4a"/>
+      <circle cx="24" cy="0" r="6" fill="#5c97cc"/>
+      <text x="42" y="5" font-size="15" fill="#cdd9e4">haiku-4.5</text>
+      <text x="292" y="5" text-anchor="end" font-size="14" fill="#3d8bd4">$1 / $5</text>
+    </g>
+    <g transform="translate(0,242)">
+      <rect x="0" y="-20" width="300" height="40" rx="8" fill="#1b222b" stroke="#2f3d4a"/>
+      <circle cx="24" cy="0" r="6" fill="#4a7aa8"/>
+      <text x="42" y="5" font-size="15" fill="#cdd9e4">local</text>
+      <text x="292" y="5" text-anchor="end" font-size="14" fill="#57c98a">$0.00</text>
+    </g>
+  </g>
+</svg>

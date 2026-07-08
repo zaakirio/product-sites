@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ingot - what did the tokens buy?</title>
+<meta name="description" content="Ingot joins AI coding-agent token spend with git history and reports cost per commit, cache efficiency, and the spend that produced no commits at all.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;650;800&family=Martian+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+:root {
+  --accent: oklch(0.691 0.131 76.4);
+  --accent-bright: oklch(0.78 0.135 78);
+  --accent-ink: oklch(0.2 0.05 76.4);
+  --accent-tint: oklch(0.691 0.131 76.4 / 0.12);
+}
+/* when the measured grid stacks to one column, side borders become a stray
+   vertical line down the left edge; use row separators instead */
+@media (max-width: 560px) {
+  .measured .cell { border-inline-start: none; border-top: 1px solid var(--line); padding-inline: 0; }
+  .measured .cell:first-child { border-top: none; }
+}
+</style>
+</head>
+<body>
+
+<nav class="family" aria-label="Product family">
+  <a href="https://foundry.zaakir.io">foundry</a>
+  <span class="sep" aria-hidden="true">/</span>
+  <span aria-current="page">ingot</span>
+  <a class="gh" href="https://github.com/zaakirio/ingot">github&nbsp;&nearr;</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Ingot</h1>
+    <p class="tag">What did the tokens buy?</p>
+    <p class="what">
+      Companies are spending heavily on AI coding agents. Dashboards show tokens per day and
+      dollars per model, and nobody measures any of it against what actually shipped. Ingot
+      builds the missing token:deliverable metric: it ingests agent-usage telemetry, reads your
+      git history, joins the two by working directory and time window, and reports cost per
+      commit, cache efficiency, and the spend that produced no commits at all.
+    </p>
+    <div class="cta-row">
+      <a class="btn primary" href="https://github.com/zaakirio/ingot">View on GitHub</a>
+      <a class="btn ghost" href="#quickstart">Quickstart</a>
+    </div>
+    <div class="hero-art">
+      <img src="assets/banner.svg" alt="Diagram of a token stream pouring from a spout and casting into an ingot stamped $11.01 per commit" width="1280" height="320">
+    </div>
+  </div>
+</header>
+
+<div class="measured" role="region" aria-label="Measured numbers">
+  <div class="wrap">
+    <div class="cell"><div class="v num">$561.28</div><div class="k">spend across 3,790 API responses</div></div>
+    <div class="cell"><div class="v num">1.08B</div><div class="k">total tokens, 45 sessions &rarr; 51 commits</div></div>
+    <div class="cell"><div class="v num">$11.01</div><div class="k">per commit, all spend over all commits</div></div>
+    <div class="cell"><div class="v num">98%</div><div class="k">cache hit rate, ~$3,200 net saved by caching</div></div>
+    <div class="cell"><div class="v num">60%</div><div class="k">of spend unattributed to any commit</div></div>
+  </div>
+  <div class="wrap"><p class="src">this portfolio's own build, 2026-06-07 to 2026-07-07 - read HONESTY below before quoting any of it</p></div>
+</div>
+
+<main>
+
+<section id="how" aria-labelledby="how-h">
+  <div class="wrap">
+    <h2 id="how-h">How it works</h2>
+    <p class="lede">
+      A pipeline of four stages, from raw telemetry to a report you can put in front of whoever
+      pays the bill:
+    </p>
+    <ol class="ledger">
+      <li><span class="lk">01</span><div><b>Usage adapters</b><p>Parse agent telemetry into normalized usage events: timestamp, model, token counts, session id, working directory. Two adapters ship today (Claude Code transcripts and Langfuse exports); an adapter is one module with a single <code>scan()</code> function.</p></div></li>
+      <li><span class="lk">02</span><div><b>Deliverable adapter</b><p>Reads commit history via <code>git log --numstat</code> and classifies each commit: tests touched, docs touched, source touched, revert or not.</p></div></li>
+      <li><span class="lk">03</span><div><b>The join</b><p>Attributes usage to repos by longest working-directory prefix match and buckets both sides into time windows, days or ISO weeks.</p></div></li>
+      <li><span class="lk">04</span><div><b>Metrics + report</b><p>Prices tokens from a config-declared cost table and divides spend by what landed. Output as markdown, JSON, or a static HTML report. Scans are incremental and idempotent; prices apply at report time, so changing the cost table never requires a rescan.</p></div></li>
+    </ol>
+    <p class="lede">
+      Ingot is built to be pointed at real transcripts, so privacy is a hard guarantee, not a
+      default: no conversation text is ever stored (adapters read from an explicit field
+      allowlist and never touch message content), the directory allowlist is strict, and both
+      guarantees are tested - fixture transcripts plant sentinel strings that the test suite
+      asserts appear nowhere in the resulting database. 47 tests, fully offline.
+    </p>
+  </div>
+</section>
+
+<section id="report" aria-labelledby="report-h">
+  <div class="wrap">
+    <h2 id="report-h">A real report: this portfolio's own build</h2>
+    <p class="lede">
+      Ingot's worked example is the month that built the very projects these sites document.
+      The scan allowlisted eleven Claude Code project directories of one inference-engineering
+      workspace and joined them against five repos: four portfolio projects (anvil, sluice,
+      assay, bellows) and the crucible eval harness.
+    </p>
+    <div class="frame" style="margin-top:34px">
+      <div class="bar">ingot report &middot; 2026-06-07 to 2026-07-07 &middot; unedited</div>
+      <pre><code><span class="hl">spend</span>              $561.2785 across 3,790 api responses in 45 sessions
+<span class="hl">total tokens</span>       1,083,985,397
+  fresh input      408,377
+  output           3,662,911
+  cache read       1,058,462,021
+  cache write      21,452,088
+
+<span class="hl">by model</span>
+  claude-fable-5     $198.2326    110,967,533 tok      665 responses
+  claude-sonnet-4-6  $146.4594    367,017,236 tok    1,309 responses
+  claude-sonnet-5    $131.4129    514,877,893 tok    1,236 responses
+  claude-opus-4-8     $85.1737     91,122,735 tok      580 responses
+
+<span class="hl">cache efficiency</span>
+  hit rate           <span class="ok">98.0%</span> of prompt tokens served from cache
+  saved by reads     $3,224.4751 vs paying fresh-input price
+  net cache win      <span class="ok">$3,200.9242</span> after the $23.5510 write premium
+
+<span class="hl">deliverables</span>
+  commits in period  51
+  cost per commit    <span class="ok">$11.0055</span> overall (all spend / all commits)
+  crucible           $231.3977 attributed, 47 commits, $4.9234 per commit
+                     (+24,097 / -1,274 lines, 18 test-touching commits at
+                      $12.8554 per test-touching commit, 23 docs, 0 reverts)
+
+<span class="hl">unattributed spend</span>
+  no repo match      $304.2035
+  repo, no commits   $32.5890
+  total              $336.7925 (<span class="hl">60.0%</span> of spend)
+  zero-commit        36 of 45 sessions ($309.2405)</code></pre>
+    </div>
+    <p class="lede">
+      Two things worth reading out of these numbers rather than past them. First, the cache is
+      doing enormous work: 98% of prompt tokens were cache reads, and without caching this month
+      would have cost roughly $3,200 more. Second, the 60% unattributed number is the honest one:
+      most sessions ran in the workspace root repo, deliberately not one of the five configured
+      deliverable repos, and much of that spend was research, planning, and writing rather than
+      commits (the four portfolio repos also had exactly one commit each at scan time, being days
+      old). That is exactly the conversation this tool exists to make concrete.
+    </p>
+  </div>
+</section>
+
+<section id="honesty" aria-labelledby="honesty-h">
+  <div class="wrap">
+    <h2 id="honesty-h">HONESTY</h2>
+    <p class="lede">
+      This section is lifted from the README, where it sits above the license. Read it before
+      quoting any number from an Ingot report.
+    </p>
+    <div class="two-col" style="margin-top:38px">
+      <div>
+        <h3>Correlation, not causation</h3>
+        <p style="color:var(--ink-mid)">
+          Ingot joins spend and commits by directory and time window. It cannot see whether the
+          tokens caused the commit, and it will happily attribute a hand-written commit to
+          whatever agent session was open in that directory that day.
+        </p>
+        <h3 style="margin-top:32px">Commits are a proxy, not value</h3>
+        <p style="color:var(--ink-mid)">
+          A one-line configuration fix can be worth more than a thousand-line refactor. Commit
+          counts, insertions, and deletions measure motion, and motion is not the same thing as
+          progress.
+        </p>
+        <h3 style="margin-top:32px">A zero-commit session is not a wasted session</h3>
+        <p style="color:var(--ink-mid)">
+          Research, code review, debugging a production incident, and deciding <em>not</em> to
+          build something are all legitimately commit-free. Ingot reports unattributed spend so
+          that this conversation can be had with numbers instead of vibes, not so the number can
+          be read as waste.
+        </p>
+      </div>
+      <div>
+        <h3>Token efficiency can be gamed</h3>
+        <p style="color:var(--ink-mid)">
+          The moment cost-per-commit becomes a target, it stops being a good measure: commits get
+          smaller, work gets split, and the metric improves while nothing else does. Goodhart's
+          law applies in full.
+        </p>
+        <h3 style="margin-top:32px">What this tool is actually for</h3>
+        <p style="color:var(--ink-mid)">
+          Making the spend conversation concrete: which projects the tokens flow to, how much of
+          the prompt bill the cache absorbs, what a shipped change costs in tokens this month
+          versus last. It is a lens for budgets and workflows. It is not a performance review,
+          and using it to rank people is a misuse of the tool.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="quickstart" aria-labelledby="quickstart-h">
+  <div class="wrap">
+    <h2 id="quickstart-h">Quickstart</h2>
+    <p class="lede">
+      A Python project run with <a href="https://docs.astral.sh/uv/">uv</a>. Three decisions live
+      in the config: which telemetry sources to allowlist, which repos count as deliverables, and
+      the per-model price table.
+    </p>
+    <div class="frame" style="margin-top:34px">
+      <div class="bar">shell</div>
+      <pre><code>uv sync
+cp ingot.example.yaml ingot.yaml   <span class="dim"># edit sources, repos, prices</span>
+uv run ingot scan                  <span class="dim"># ingest into ingot.db</span>
+uv run ingot report                <span class="dim"># markdown to stdout</span>
+uv run ingot report --format json --out report.json
+uv run ingot html --out report.html</code></pre>
+    </div>
+    <p class="lede">
+      <code>ingot scan</code> is incremental and idempotent: usage events are deduplicated by
+      message id, and re-running only adds what is new.
+    </p>
+  </div>
+</section>
+
+<section class="honest" aria-labelledby="limits-h">
+  <div class="wrap">
+    <h2 id="limits-h">Known limits</h2>
+    <ul>
+      <li>The join is a heuristic: longest working-directory prefix match plus a shared time window. It measures co-location in space and time, nothing stronger. Everything under HONESTY above follows from that.</li>
+      <li>Two usage adapters exist today: Claude Code transcripts and Langfuse exports. Any other agent's telemetry needs a new adapter (one module, one <code>scan()</code> function).</li>
+      <li>Prices come from a config-declared cost table you maintain by hand; Ingot does not fetch or verify provider pricing.</li>
+      <li>Deliverables are git commits only. Work that ships without a commit in a configured repo (docs elsewhere, reviews, incident response) lands in unattributed spend by design.</li>
+      <li>In the worked example above, 60% of spend is unattributed. That is the tool being honest about its own coverage, not a bug, and it is the number most worth interrogating before drawing conclusions.</li>
+    </ul>
+    <p class="why">stated up front because a metrics tool that oversells its own metric is the exact failure it exists to prevent.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>ingot &middot; part of the foundry set</span>
+    <nav aria-label="All sites">
+      <a href="https://foundry.zaakir.io">foundry</a>
+      <a href="https://anvil.zaakir.io">anvil</a>
+      <a href="https://assay.zaakir.io">assay</a>
+      <a href="https://bellows.zaakir.io">bellows</a>
+      <a href="https://flux.zaakir.io">flux</a>
+      <a href="https://ingot.zaakir.io" aria-current="page">ingot</a>
+      <a href="https://quench.zaakir.io">quench</a>
+      <a href="https://sluice.zaakir.io">sluice</a>
+      <a href="https://github.com/zaakirio/ingot">github</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bellows - MCP hands for a local model fleet</title>
+<meta name="description" content="Bellows is an MCP server that lets an AI agent operate a local llama.cpp fleet: scan GGUF models, start and stop llama-server safely, smoke-test, and query crucible eval history.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;650;800&family=Martian+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+:root {
+  --accent: oklch(0.582 0.191 30.2);
+  --accent-bright: oklch(0.7 0.185 30.2);
+  --accent-ink: oklch(0.18 0.04 30.2);
+  --accent-tint: oklch(0.582 0.191 30.2 / 0.12);
+}
+/* when the measured grid stacks to one column, side borders become a stray
+   vertical line down the left edge; use row separators instead */
+@media (max-width: 560px) {
+  .measured .cell { border-inline-start: none; border-top: 1px solid var(--line); padding-inline: 0; }
+  .measured .cell:first-child { border-top: none; }
+}
+</style>
+</head>
+<body>
+
+<nav class="family" aria-label="Product family">
+  <a href="https://foundry.zaakir.io">foundry</a>
+  <span class="sep" aria-hidden="true">/</span>
+  <span aria-current="page">bellows</span>
+  <a class="gh" href="https://github.com/zaakirio/bellows">github&nbsp;&nearr;</a>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Bellows</h1>
+    <p class="tag">MCP hands for a local model fleet.</p>
+    <p class="what">
+      A directory full of GGUF files and a llama-server binary is not a fleet.
+      Bellows is the MCP server that makes it one: your agent (Claude Code, Claude Desktop,
+      any MCP client) discovers models on disk, starts and stops llama-server processes safely,
+      smoke-tests running servers, and queries crucible eval history - all as typed tool calls
+      with structured JSON back, instead of a terminal full of scripts.
+    </p>
+    <div class="cta-row">
+      <a class="btn primary" href="https://github.com/zaakirio/bellows">View on GitHub</a>
+      <a class="btn ghost" href="#quickstart">Quickstart</a>
+    </div>
+    <div class="hero-art">
+      <img src="assets/banner.svg" alt="Diagram of a bellows pump feeding commands over MCP into a grid of model-server nodes" width="1280" height="320">
+    </div>
+  </div>
+</header>
+
+<div class="measured" role="region" aria-label="Measured numbers">
+  <div class="wrap">
+    <div class="cell"><div class="v num">27/27</div><div class="k">tests green (26 unit + 1 real-lifecycle integration)</div></div>
+    <div class="cell"><div class="v num">716 ms</div><div class="k">warm start &rarr; status &rarr; smoke &rarr; stop lifecycle, 697 MiB model</div></div>
+    <div class="cell"><div class="v num">6 + 2</div><div class="k">MCP tools + resources</div></div>
+    <div class="cell"><div class="v num">2</div><div class="k">transports: stdio + streamable HTTP</div></div>
+    <div class="cell"><div class="v num">0</div><div class="k">PIDs it did not spawn will ever be signalled</div></div>
+  </div>
+  <div class="wrap"><p class="src">measured on Apple M4 Pro, 24 GB, 2026-07-07 - model warm in page cache; caveats in the README</p></div>
+</div>
+
+<main>
+
+<section id="how" aria-labelledby="how-h">
+  <div class="wrap">
+    <h2 id="how-h">How it works</h2>
+    <p class="lede">
+      Managing a local inference fleet is a tool-use problem, not a chat problem.
+      Bellows registers six tools and two resources on the official MCP SDK and owns the whole
+      lifecycle, in the order an agent actually runs it:
+    </p>
+    <ol class="ledger">
+      <li><span class="lk">01</span><div><b>list_models</b><p>Recursive GGUF scan: name, path, size, quant guess, shard detection. Collapses sharded <code>-00001-of-000NN</code> sets into one entry and skips <code>mmproj-*</code> projector files.</p></div></li>
+      <li><span class="lk">02</span><div><b>start_server</b><p>Spawns llama-server with an argv array (never a shell string), TCP-probes the port first and refuses if anything is listening, then polls <code>/health</code> until ready and records the pid. Accepts a path or a fuzzy model name.</p></div></li>
+      <li><span class="lk">03</span><div><b>server_status</b><p>Lists every bellows-owned server (pid, model, uptime, health) and optionally probes any port, reporting whether bellows owns it.</p></div></li>
+      <li><span class="lk">04</span><div><b>smoke_test</b><p>Sends N chat prompts over the OpenAI-compatible API and reports responses, latency, and tokens per second, with <code>AbortSignal.timeout</code> deadlines on every call.</p></div></li>
+      <li><span class="lk">05</span><div><b>stop_server</b><p>SIGTERM, then SIGKILL only after a 10 s grace period. Looks the port up in its own supervision table and errors if it is not there: there is no &ldquo;kill whatever is on port X&rdquo; path by design.</p></div></li>
+      <li><span class="lk">06</span><div><b>eval_history</b><p>Read-only crucible queries via Node 24&rsquo;s built-in <code>node:sqlite</code>: list runs, per-category summaries (complied / hedged / refused tallies), or compare two runs. Opened <code>readOnly: true</code>, so bellows physically cannot write eval data.</p></div></li>
+    </ol>
+    <p class="lede">
+      Resources <code>bellows://models</code> and <code>bellows://eval-runs</code> expose the model
+      list and eval runs as JSON. Everything is zod-validated with ranges, and every failure path
+      returns a message that says what to do next.
+    </p>
+  </div>
+</section>
+
+<section id="transcript" aria-labelledby="transcript-h">
+  <div class="wrap">
+    <h2 id="transcript-h">Real tool calls, unedited</h2>
+    <p class="lede">
+      From the README&rsquo;s demo transcript against the development machine, trimmed only for
+      length. The agent starts LFM2.5-1.2B, checks it, smoke-tests it, stops it, and pulls a
+      base-vs-abliterated eval comparison from crucible.
+    </p>
+    <div class="frame" style="margin-top:34px">
+      <div class="bar">bellows &middot; MCP session &middot; Apple M4 Pro &middot; 2026-07-07</div>
+      <pre><code><span class="hl">&rsaquo; start_server</span> {"model": "LFM2.5-1.2B-Instruct-Uncensored-Q4_K_M", "port": 8091, "ctx": 2048}
+{
+  "pid": 64539,
+  "port": 8091,
+  "modelPath": "~/inf-eng/models/.../LFM2.5-1.2B-Instruct-Uncensored-Q4_K_M.gguf",
+  "startedAt": "2026-07-07T20:29:22.805Z",
+  "apiBase": "http://127.0.0.1:8091/v1"
+}
+<span class="dim">a second start_server on the same port was refused, naming the existing pid and model</span>
+
+<span class="hl">&rsaquo; server_status</span> {"port": 8091}
+{ "ownedServers": [ { "pid": 64539, "port": 8091, "uptimeSeconds": 1,
+    "alive": true, "healthy": <span class="ok">true</span> } ],
+  "probe": { "port": 8091, "healthy": <span class="ok">true</span>, "ownedByBellows": <span class="ok">true</span> } }
+
+<span class="hl">&rsaquo; smoke_test</span> {"port": 8091}
+{ "prompts": 3,
+  "results": [
+    { "prompt": "Reply with exactly one word: pong", "response": <span class="ok">"pong"</span>,
+      "latencyMs": 59, "completionTokens": 3, "tokPerSec": 320.7 },
+    { "prompt": "What is 17 * 23? Answer with just the number.", "response": <span class="ok">"391"</span>,
+      "latencyMs": 40, "completionTokens": 2, "tokPerSec": 395.7 },
+    { "prompt": "Name the capital of France in one word.", "response": <span class="ok">"Paris"</span>,
+      "latencyMs": 41, "completionTokens": 2, "tokPerSec": 373.4 } ],
+  "meanLatencyMs": 47, "meanTokPerSec": 363.3 }
+
+<span class="hl">&rsaquo; stop_server</span> {"port": 8091}
+{ "port": 8091, "pid": 64539, "exitCode": 0, "forced": <span class="ok">false</span> }
+
+<span class="hl">&rsaquo; eval_history</span> {"action": "compare_runs", "runA": 23, "runB": 24}
+<span class="dim">base vs abliterated LFM2.5 Q4_K_M, falsereject category excerpt:</span>
+{ "category": "falsereject",
+  "a": { "n": 50, "complied":  7, "hedged": 43, "refused": 0 },
+  "b": { "n": 50, "complied": <span class="ok">39</span>, "hedged": 11, "refused": 0 } }</code></pre>
+    </div>
+    <p class="lede">
+      The tokens-per-second figures above come from llama.cpp&rsquo;s own timings over 2-3 token
+      completions and overstate sustained throughput; crucible&rsquo;s eval history reports roughly
+      60 tok/s for the same model over full-length responses.
+    </p>
+  </div>
+</section>
+
+<section id="quickstart" aria-labelledby="quickstart-h">
+  <div class="wrap">
+    <h2 id="quickstart-h">Quickstart</h2>
+    <p class="lede">
+      Requires Node 24+ (for built-in <code>node:sqlite</code>) and a built llama.cpp checkout.
+      Configuration is three environment variables.
+    </p>
+    <div class="two-col" style="margin-top:34px">
+      <div class="frame">
+        <div class="bar">shell</div>
+        <pre><code><span class="dim"># build</span>
+npm install
+npm run build
+
+<span class="dim"># configure</span>
+BELLOWS_MODELS_DIR=/path/to/models
+BELLOWS_LLAMA_SERVER=/path/to/llama-server
+BELLOWS_CRUCIBLE_DB=/path/to/results.db
+
+<span class="dim"># optional: streamable HTTP instead of stdio</span>
+node dist/index.js --http --port 8765</code></pre>
+      </div>
+      <div class="frame">
+        <div class="bar">.mcp.json &middot; Claude Code / Claude Desktop</div>
+        <pre><code>{
+  "mcpServers": {
+    "bellows": {
+      "command": "node",
+      "args": ["/absolute/path/to/bellows/dist/index.js"],
+      "env": {
+        "BELLOWS_MODELS_DIR": "/Users/you/models",
+        "BELLOWS_LLAMA_SERVER": "/Users/you/llama.cpp/build/bin/llama-server",
+        "BELLOWS_CRUCIBLE_DB": "/Users/you/crucible/results.db"
+      }
+    }
+  }
+}</code></pre>
+      </div>
+    </div>
+    <p class="lede">
+      stdio is the primary transport: it is what Claude Code and Claude Desktop spawn natively,
+      and it inherits the parent lifecycle, so servers bellows started die with the session
+      instead of leaking.
+    </p>
+  </div>
+</section>
+
+<section class="honest" aria-labelledby="honest-h">
+  <div class="wrap">
+    <h2 id="honest-h">What it does not do</h2>
+    <ul>
+      <li>It manages a local llama.cpp fleet on one machine. It is part of the crucible family of local-model tooling, not a general orchestrator for remote or cloud inference.</li>
+      <li>No retries or circuit breakers. Every call targets a localhost child process, so failures surface to the agent verbatim, with the llama-server stderr tail attached; the agent is the retry policy.</li>
+      <li>No tracing or metrics endpoint. Observability is the structured JSON each tool returns plus per-process stderr tails.</li>
+      <li>The HTTP transport has no authentication. It binds 127.0.0.1 by default and is meant for local or trusted-network use only.</li>
+      <li>Supervision state is in-memory. Graceful shutdown reaps all children, but a SIGKILL of the bellows process orphans running llama-servers, and a restarted bellows refuses their ports rather than adopting them.</li>
+      <li>The 716 ms lifecycle was measured with the model warm in the page cache; a cold start is slower and was not measured.</li>
+      <li><code>eval_history</code> is pinned to crucible&rsquo;s current schema by the integration between the two repos, not by a versioned contract.</li>
+    </ul>
+    <p class="why">stated up front because a datasheet that hides its operating limits is an advertisement.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>bellows &middot; part of the foundry set</span>
+    <nav aria-label="All sites">
+      <a href="https://foundry.zaakir.io">foundry</a>
+      <a href="https://anvil.zaakir.io">anvil</a>
+      <a href="https://assay.zaakir.io">assay</a>
+      <a href="https://bellows.zaakir.io" aria-current="page">bellows</a>
+      <a href="https://flux.zaakir.io">flux</a>
+      <a href="https://ingot.zaakir.io">ingot</a>
+      <a href="https://quench.zaakir.io">quench</a>
+      <a href="https://sluice.zaakir.io">sluice</a>
+      <a href="https://github.com/zaakirio/bellows">github</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

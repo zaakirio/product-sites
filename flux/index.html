@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>flux · one trace across the whole fleet</title>
+<meta name="description" content="flux is a vendor-neutral control plane that stitches one OpenTelemetry trace across a TypeScript and Python agent fleet and binds USD cost to each task. Demo run: $0.0748 across 9 spans, 20,762 tokens.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;650;800&family=Martian+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+:root{
+  --accent: oklch(0.65 0.104 291);
+  --accent-bright: oklch(0.75 0.115 291);
+  --accent-ink: oklch(0.17 0.04 291);
+  --accent-tint: oklch(0.65 0.104 291 / 0.12);
+}
+.shots{display:grid;gap:28px;margin-top:40px}
+@media(min-width:920px){.shots{grid-template-columns:1fr 1fr}.shots .full{grid-column:1/-1}}
+.how-frame{margin-top:40px}
+.family{flex-wrap:wrap}
+.family .gh{overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+
+<header class="family">
+  <a href="https://zaakir.io">foundry</a>
+  <span class="sep">·</span>
+  <strong>flux</strong>
+  <a class="gh" href="https://github.com/zaakirio/flux">github.com/zaakirio/flux ↗</a>
+</header>
+
+<main>
+
+<div class="hero">
+  <div class="wrap">
+    <h1>flux</h1>
+    <p class="tag">One trace across the whole fleet.</p>
+    <p class="what">
+      Real agent systems are not one framework. A request starts in a TypeScript agent,
+      crosses into a Python agent, and the story fragments: every framework has its own
+      idea of a trace and its own cost accounting. flux ingests OpenTelemetry spans over
+      OTLP/HTTP, stitches them into one distributed trace with W3C Trace Context, discovers
+      agents from their A2A Agent Cards, and binds USD cost to each task. The only contracts
+      are open standards, so any agent that speaks them shows up.
+    </p>
+    <div class="cta-row">
+      <a class="btn primary" href="https://github.com/zaakirio/flux">View on GitHub</a>
+      <a class="btn ghost" href="#quickstart">Quickstart</a>
+    </div>
+    <div class="hero-art">
+      <img src="assets/banner.svg" alt="flux banner: a single trace spine crossing agent nodes, in the flux violet" width="1280" height="320">
+    </div>
+  </div>
+</div>
+
+<aside class="measured" aria-label="Measured numbers">
+  <div class="wrap">
+    <div class="cell"><div class="v num">$0.0748</div><div class="k">one demo task, end to end, sub-cent cost attribution</div></div>
+    <div class="cell"><div class="v num">9</div><div class="k">spans in one stitched trace crossing TypeScript into Python</div></div>
+    <div class="cell"><div class="v num">$0.0684 / $0.0064</div><div class="k">per-agent split: quench (TS) / anvil (Python)</div></div>
+    <div class="cell"><div class="v num">20,762</div><div class="k">tokens metered across the fleet (19,617 in / 1,145 out)</div></div>
+    <div class="cell"><div class="v num">28</div><div class="k">unit tests: OTLP parse, stitch, cost math, card fetch</div></div>
+  </div>
+  <div class="wrap">
+    <p class="src">measured 2026-07-08: offline demo run (scripts/demo.sh) shown in the docs/ screenshots; test count from npm run test the same day. Offline costs come from a deterministic stand-in model, see limitations.</p>
+  </div>
+</aside>
+
+<section id="how">
+  <div class="wrap">
+    <h2>How it works</h2>
+    <p class="lede">
+      The make-or-break capability, proven end to end with real telemetry: one request from
+      the quench triage agent (TypeScript, AI SDK) crosses into the anvil docs agent
+      (Python, LangGraph), and flux shows it as one trace with per-agent cost.
+    </p>
+    <ol class="ledger">
+      <li><span class="lk">01</span><div><b>Emit.</b><p>Both agents run the genuine OpenTelemetry SDK (JS and Python) and export OTLP/HTTP JSON to flux's ingest route, POST /v1/traces. Spans have real ids, timing, parent links, and resource attributes.</p></div></li>
+      <li><span class="lk">02</span><div><b>Propagate.</b><p>quench injects its active span's W3C traceparent into the outgoing A2A request; anvil extracts it, so the Python spans become children of the TypeScript span that called them. The proof asserts exactly this parent link.</p></div></li>
+      <li><span class="lk">03</span><div><b>Stitch and store.</b><p>flux parses resourceSpans, reads service.name from each resource, and stores every span with its parent link and attributes in an embedded SQLite store.</p></div></li>
+      <li><span class="lk">04</span><div><b>Discover.</b><p>Each agent serves a spec-1.0 A2A Agent Card at /.well-known/agent-card.json; flux fetches and stores them so the fleet roster shows real identities and skills, not config strings.</p></div></li>
+      <li><span class="lk">05</span><div><b>Bind cost.</b><p>USD is computed from the gen_ai token-usage attributes carried on the spans against a dated July 2026 price table, to sub-cent precision, attributed to agent and task.</p></div></li>
+    </ol>
+    <div class="frame how-frame">
+      <div class="bar">traces / quench.triage · 8ed6c8f4 · the stitched timeline, span by span</div>
+      <pre>quench.triage                          <span class="dim">quench</span>   20.80s
+├─ triage.classify                     <span class="dim">quench</span>   10.8ms   <span class="ok">$0.0006</span>
+├─ triage.consult_docs  <span class="hl">a2a -&gt; anvil</span>   <span class="dim">quench</span>   20.78s
+│  └─ anvil.answer_grounded_question   <span class="hl">anvil</span>    20.76s   <span class="dim">← cross-service hop</span>
+│     ├─ retrieve       <span class="dim">25 candidates</span>  <span class="hl">anvil</span>    12.23s
+│     ├─ rerank         <span class="dim">kept 8</span>         <span class="hl">anvil</span>     8.46s
+│     └─ answer         <span class="dim">1757 in/75 out</span> <span class="hl">anvil</span>             <span class="ok">$0.0064</span>
+├─ triage.investigate   <span class="dim">17440 in/1030</span>  <span class="dim">quench</span>            <span class="ok">$0.0678</span>
+└─ triage.diagnose                     <span class="dim">quench</span>    0.1ms
+                                                <span class="dim">task total</span>  <span class="ok">$0.0748</span></pre>
+    </div>
+  </div>
+</section>
+
+<section id="panes">
+  <div class="wrap">
+    <h2>The panes</h2>
+    <p class="lede">
+      The landing page is the Fleet Overview: what the fleet is doing, what it costs, and
+      whether it is healthy, aggregated live from every span in the store. It is honest
+      about fleet size: two agents plus one MCP tool node, and nothing invented to fill
+      the dashboard.
+    </p>
+    <div class="shots">
+      <figure class="shot full">
+        <img src="assets/04-fleet-overview.png" alt="flux Fleet Overview: header stats showing $0.0748 fleet cost, 1 task, 9 spans, 20,762 tokens; roster cards for quench, anvil, and bellows with eval badges; cost-by-agent and cost-by-task bar charts" width="1280" height="1482" loading="lazy">
+        <figcaption>Fleet Overview: live aggregates from the span store, per-agent roster with real eval headlines, cost analytics as inline SVG.</figcaption>
+      </figure>
+      <figure class="shot full">
+        <img src="assets/02-stitched-timeline.png" alt="flux stitched timeline for the quench.triage trace: nine spans across two services, the anvil spans indented under the quench span that called them, with per-span duration and cost" width="1280" height="1158" loading="lazy">
+        <figcaption>The stitched timeline: one request crossing quench (TS) into anvil (Python), the cross-service hop flagged, cost on every model span.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<section id="quickstart">
+  <div class="wrap">
+    <h2>Quickstart</h2>
+    <p class="lede">
+      Requirements: Node 22+, Python 3.13+ with uv, and Docker for the Postgres that anvil
+      retrieves from. The demo is offline and keyless but the telemetry is real.
+    </p>
+    <div class="frame how-frame">
+      <div class="bar">flux · zsh</div>
+      <pre><span class="dim"># unit tests: OTLP parse, parent-child stitch, cost math, card fetch</span>
+<span class="hl">npm</span> install
+<span class="hl">npm</span> run test
+
+<span class="dim"># the make-or-break: a real TS-&gt;Python trace, stitched, asserted</span>
+<span class="hl">npm</span> run proof
+
+<span class="dim"># end-to-end demo: starts flux + anvil + quench, runs one real triage</span>
+<span class="dim"># across the boundary, confirms the stitched trace</span>
+<span class="hl">./scripts/demo.sh</span>
+<span class="dim"># open http://127.0.0.1:3100</span></pre>
+    </div>
+  </div>
+</section>
+
+<section class="honest">
+  <div class="wrap">
+    <h2>Limitations, stated plainly</h2>
+    <ul>
+      <li>The OpenTelemetry GenAI semantic conventions are still experimental; the gen_ai.* attribute names used here are current as of mid-2026 but may shift.</li>
+      <li>A2A tracing is opt-in: agents only join a trace if they are instrumented and honor incoming traceparent. flux does not magically trace an uninstrumented agent.</li>
+      <li>Single-machine slice: the store is embedded SQLite and ingest is one process. This is a de-risking slice, not a horizontally scaled collector.</li>
+      <li>flux ingests OTLP/HTTP JSON specifically, not protobuf.</li>
+      <li>Offline, the agents drive real tool loops with a deterministic stand-in model, so absolute cost figures illustrate the mechanism (binding real token attributes to a dated price table) rather than live model spend. Set an API key and the same spans carry real token usage.</li>
+    </ul>
+    <p class="why">Copied from the Limitations section of the flux README, 2026-07-08. If a number on this page and the repo ever disagree, the repo wins.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>flux is part of the foundry family</span>
+    <nav aria-label="Foundry family">
+      <a href="https://quench.zaakir.io">quench</a>
+      <a href="https://anvil.zaakir.io">anvil</a>
+      <a href="https://bellows.zaakir.io">bellows</a>
+      <a href="https://crucible.zaakir.io">crucible</a>
+      <a href="https://assay.zaakir.io">assay</a>
+      <a href="https://ingot.zaakir.io">ingot</a>
+      <a href="https://sluice.zaakir.io">sluice</a>
+      <a href="https://github.com/zaakirio/flux">github ↗</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

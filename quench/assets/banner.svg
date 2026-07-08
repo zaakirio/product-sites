@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-label="quench - triage the incident, approve the fix">
+  <defs>
+    <linearGradient id="qu-wave" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e0533b"/>
+      <stop offset="0.42" stop-color="#e0533b"/>
+      <stop offset="0.6" stop-color="#d6a13a"/>
+      <stop offset="0.78" stop-color="#22b8a0"/>
+      <stop offset="1" stop-color="#22b8a0"/>
+    </linearGradient>
+    <radialGradient id="qu-steam" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#22b8a0" stop-opacity="0.3"/>
+      <stop offset="1" stop-color="#22b8a0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="320" fill="#111719"/>
+
+  <!-- wordmark upper-left -->
+  <g transform="translate(88,0)">
+    <text x="0" y="120" font-family="-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="80" font-weight="800" letter-spacing="-2" fill="#eaf2f0">quench</text>
+    <text x="4" y="160" font-family="-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="22" fill="#9db4b0">Triage the incident. Approve the fix.</text>
+    <text x="4" y="196" font-family="ui-monospace,'SF Mono',Menlo,Consolas,monospace" font-size="14" fill="#5f7a76" letter-spacing="0.4">GitHub Actions triage · AI SDK 6 · MCP · HITL approvals · trajectory evals in CI</text>
+  </g>
+
+  <!-- INCIDENT WAVEFORM across the bottom: red failure spike -> investigation ticks ->
+       approval gate -> quenched to a green resolved flatline. State transition, hot to cool. -->
+  <g transform="translate(0,270)">
+    <!-- baseline -->
+    <line x1="88" y1="0" x2="1200" y2="0" stroke="#22303050" stroke-width="1"/>
+    <!-- the trace -->
+    <path d="M88 0 L300 0 L330 -46 L360 34 L390 -30 L420 6 L470 0
+             L640 0
+             L980 0 L1200 0"
+          fill="none" stroke="url(#qu-wave)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+    <!-- incident marker (hot) -->
+    <circle cx="330" cy="-46" r="6" fill="#e0533b"/>
+    <text x="330" y="-58" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#e0533b" text-anchor="middle">run failed</text>
+    <!-- investigation ticks between spike and gate -->
+    <g stroke="#6f8a86" stroke-width="2">
+      <line x1="500" y1="-8" x2="500" y2="8"/><line x1="540" y1="-8" x2="540" y2="8"/>
+      <line x1="580" y1="-8" x2="580" y2="8"/><line x1="620" y1="-8" x2="620" y2="8"/>
+    </g>
+    <text x="560" y="-20" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#6f8a86" text-anchor="middle">investigate</text>
+    <!-- approval gate -->
+    <g transform="translate(700,0)">
+      <line x1="0" y1="-34" x2="0" y2="34" stroke="#d6a13a" stroke-width="2" stroke-dasharray="4 4"/>
+      <rect x="-14" y="-52" width="120" height="26" rx="6" fill="#211d12" stroke="#d6a13a"/>
+      <text x="46" y="-34" font-family="ui-monospace,Menlo,monospace" font-size="12" fill="#e6b64a" text-anchor="middle">approve fix</text>
+    </g>
+    <!-- resolved (cool) -->
+    <ellipse cx="1040" cy="0" rx="120" ry="22" fill="url(#qu-steam)"/>
+    <circle cx="980" cy="0" r="6" fill="#22b8a0"/>
+    <text x="1040" y="-16" font-family="ui-monospace,Menlo,monospace" font-size="11" fill="#22b8a0" text-anchor="middle">re-run green</text>
+    <!-- steam wisps off the quench -->
+    <path d="M1000 -10 q-6 -18 4 -30" fill="none" stroke="#22b8a0" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/>
+    <path d="M1030 -12 q6 -20 -4 -34" fill="none" stroke="#22b8a0" stroke-width="2.5" stroke-linecap="round" opacity="0.4"/>
+  </g>
+</svg>

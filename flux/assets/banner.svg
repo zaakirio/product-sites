@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-label="flux - one trace across the whole fleet">
+  <defs>
+    <linearGradient id="fx-spine" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8f83c9"/>
+      <stop offset="1" stop-color="#c9c2ec"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="320" fill="#131218"/>
+
+  <!-- wordmark left -->
+  <g transform="translate(88,0)">
+    <text x="0" y="128" font-family="-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="82" font-weight="800" letter-spacing="-2" fill="#efedf6">flux</text>
+    <text x="4" y="170" font-family="-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="22" fill="#a9a3c4">One trace across the whole fleet.</text>
+    <text x="4" y="206" font-family="ui-monospace,'SF Mono',Menlo,Consolas,monospace" font-size="14" fill="#6d6788" letter-spacing="0.4">A2A cards · OpenTelemetry · cost · evals</text>
+  </g>
+
+  <!-- MANY-TO-ONE CONVERGENCE (inverse of sluice's split): four heterogeneous agent
+       nodes braid through a junction into one unified, multi-colored trace spine. -->
+  <g transform="translate(510,0)" fill="none" stroke-linecap="round">
+    <!-- flux lines from each node to the junction at (330,160) -->
+    <path d="M40 60  C 180 60  200 160 330 160" stroke="#e8792c" stroke-width="6" opacity="0.8"/>
+    <path d="M40 120 C 180 120 210 160 330 160" stroke="#22b8a0" stroke-width="6" opacity="0.8"/>
+    <path d="M40 200 C 180 200 210 160 330 160" stroke="#3d8bd4" stroke-width="6" opacity="0.8"/>
+    <path d="M40 260 C 180 260 200 160 330 160" stroke="#d43d2c" stroke-width="6" opacity="0.8"/>
+    <!-- junction -->
+    <circle cx="330" cy="160" r="11" fill="#131218" stroke="#c9c2ec" stroke-width="3"/>
+    <!-- unified trace spine continues right -->
+    <path d="M341 160 H470" stroke="url(#fx-spine)" stroke-width="7"/>
+  </g>
+
+  <!-- agent nodes (far left of the convergence), each a sibling accent + label -->
+  <g transform="translate(510,0)" font-family="ui-monospace,'SF Mono',Menlo,Consolas,monospace" font-size="12" text-anchor="middle">
+    <g transform="translate(0,60)"><circle cx="40" cy="0" r="9" fill="#e8792c"/><text x="40" y="-16" fill="#9a8f7e">anvil</text></g>
+    <g transform="translate(0,120)"><circle cx="40" cy="0" r="9" fill="#22b8a0"/><text x="40" y="-16" fill="#7ea8a2">quench</text></g>
+    <g transform="translate(0,200)"><circle cx="40" cy="0" r="9" fill="#3d8bd4"/><text x="40" y="-16" fill="#7e93a8">sluice</text></g>
+    <g transform="translate(0,260)"><circle cx="40" cy="0" r="9" fill="#d43d2c"/><text x="40" y="24" fill="#a8837e">bellows</text></g>
+  </g>
+
+  <!-- the unified trace bar (right): one task, segments colored by contributing agent, with cost + eval check -->
+  <g transform="translate(940,144)" font-family="ui-monospace,'SF Mono',Menlo,Consolas,monospace">
+    <rect x="0" y="0" width="70" height="20" rx="4" fill="#e8792c"/>
+    <rect x="72" y="0" width="120" height="20" rx="4" fill="#22b8a0"/>
+    <rect x="194" y="0" width="46" height="20" rx="4" fill="#8f83c9"/>
+    <text x="0" y="44" font-size="13" fill="#a9a3c4">task 4f2a · </text>
+    <text x="86" y="44" font-size="13" fill="#c9c2ec">$0.0071</text>
+    <path d="M196 34 l6 7 12 -15" fill="none" stroke="#57c98a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <rect x="88" y="234" width="300" height="2" fill="url(#fx-spine)"/>
+</svg>
