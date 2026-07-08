@@ -8,65 +8,176 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;650;800&family=Martian+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/site.css">
-<style>
-:root{
-  --accent: oklch(0.7 0.123 178);
-  --accent-bright: oklch(0.78 0.128 178);
-  --accent-ink: oklch(0.17 0.035 178);
-  --accent-tint: oklch(0.7 0.123 178 / 0.12);
-  --hot: oklch(0.66 0.17 32);
-}
-.shots{display:grid;gap:28px;margin-top:40px}
-@media(min-width:920px){.shots{grid-template-columns:1fr 1fr}.shots .full{grid-column:1/-1}}
-.how-frame{margin-top:40px}
-.family{flex-wrap:wrap}
-.family .gh{overflow-wrap:anywhere}
-.frame .hot{color:var(--hot)}
-</style>
+<link rel="stylesheet" href="assets/quench.css">
 </head>
 <body>
 
-<header class="family">
-  <a href="https://foundry.zaakir.io">foundry</a>
-  <span class="sep">·</span>
-  <strong>quench</strong>
-  <a class="gh" href="https://github.com/zaakirio/quench">github.com/zaakirio/quench ↗</a>
+<canvas id="quench-bg" aria-hidden="true"></canvas>
+
+<header class="top">
+  <a class="mark" href="#">quench</a>
+  <nav aria-label="Page sections">
+    <a href="#how">How it works</a>
+    <a href="#console">Console</a>
+    <a href="#quickstart">Quickstart</a>
+    <a href="#limitations">Limitations</a>
+  </nav>
+  <div class="ext">
+    <a href="https://foundry.zaakir.io">foundry</a>
+    <a href="https://github.com/zaakirio/quench">github ↗</a>
+  </div>
 </header>
 
 <main>
 
 <div class="hero">
   <div class="wrap">
-    <h1>quench</h1>
-    <p class="tag">Triage the incident. Approve the fix.</p>
+    <h1>Triage the incident.<br><span class="fix">Approve the fix.</span></h1>
     <p class="what">
-      Someone has to open the failed CI run, read the logs, work out the failure class,
-      and decide whether to re-run, fix, or escalate. quench does that first pass: it
-      ingests a failed GitHub Actions run, investigates it with read-only tools, classifies
-      the failure, produces a structured, evidence-cited diagnosis, and drafts one
-      recommended action. Then it stops. Every write is human-gated and dry-run by default.
+      quench is a CI incident-triage agent. It ingests a failed GitHub Actions run,
+      investigates with read-only tools, diagnoses the root cause with cited evidence,
+      and drafts one recommended action. <b>Every write waits for a human yes.</b>
     </p>
     <div class="cta-row">
       <a class="btn primary" href="https://github.com/zaakirio/quench">View on GitHub</a>
       <a class="btn ghost" href="#quickstart">Quickstart</a>
     </div>
-    <div class="hero-art">
-      <img src="assets/banner.svg" alt="quench banner: a hot-red incident wave cooling to teal, the quench motif" width="1280" height="320">
+  </div>
+</div>
+
+<div class="console" aria-label="One recorded triage, rendered">
+  <div class="wrap-wide">
+    <div class="console-grid">
+
+      <article class="panel run" aria-label="The failed CI run">
+        <div class="phead"><span class="dot red"></span>ci · run 28951398431<span class="spacer"></span><span class="pfail">failed</span></div>
+        <div class="pbody">
+          <div class="run-meta">
+            <span>zaakirio/crucible</span>
+            <span>master</span>
+            <span>268a1fd</span>
+            <a href="https://github.com/zaakirio/crucible/actions/runs/28951398431">view run ↗</a>
+          </div>
+          <ul class="jobs">
+            <li><span class="mark-ok">✓</span><span class="jname">python</span><span class="dur num">19s</span></li>
+            <li class="failed"><span class="mark-fail">✕</span><span class="jname">lab-ui</span><span class="dur num">6s</span></li>
+          </ul>
+          <ol class="steps" aria-label="Steps of the failed lab-ui job">
+            <li><span class="mark-ok">✓</span>actions/checkout<span class="st num">ok</span></li>
+            <li><span class="mark-ok">✓</span>actions/setup-node<span class="st num">ok</span></li>
+            <li class="failed"><span class="mark-fail">✕</span>Run npm ci<span class="st">exit 1</span></li>
+            <li><span class="mark-skip">−</span>npm run lint<span class="st">skipped</span></li>
+            <li><span class="mark-skip">−</span>npm run build<span class="st">skipped</span></li>
+          </ol>
+        </div>
+      </article>
+
+      <article class="panel" aria-label="Agent investigation trajectory">
+        <div class="phead"><span class="dot cyan pulse"></span>agent investigation<span class="spacer"></span>streaming</div>
+        <div class="pbody">
+          <ol class="traj">
+            <li><span class="tool">classify</span><span class="out">haiku first pass: dependency, 85% confidence</span></li>
+            <li><span class="tool">fetch_run</span><span class="out">ci · push to master · concluded failure</span></li>
+            <li><span class="tool">fetch_jobs</span><span class="out">python succeeded · lab-ui failed at "Run npm ci"</span></li>
+            <li><span class="tool">fetch_failure_evidence</span><span class="out">".github:106 Process completed with exit code 1."</span></li>
+            <li><span class="tool">fetch_commit_diff</span><span class="out">268a1fd "Redesign banner: gauged crucible vessel…"</span></li>
+            <li><span class="tool">list_recent_runs</span><span class="out">2 recent same-workflow runs: failure / failure</span></li>
+            <li><span class="tool">record_diagnosis</span><span class="out">dependency · recommends open_fix_pr</span></li>
+            <li class="write"><span class="tool">open_fix_pr</span><span class="out wait">WRITE · waiting for human approval </span></li>
+          </ol>
+        </div>
+        <div class="pfoot"><span>claude-haiku-4-5 → claude-sonnet-5</span><span class="num">cost $0.0684</span><span class="live">dry-run ●</span></div>
+      </article>
+
+      <div class="col-stack">
+        <article class="panel diag" aria-label="Structured diagnosis">
+          <div class="phead"><span class="dot cyan"></span>diagnosis</div>
+          <div class="pbody">
+            <dl>
+              <div>
+                <dt>failure_class</dt>
+                <dd class="fclass">dependency</dd>
+              </div>
+              <div>
+                <dt>root_cause</dt>
+                <dd class="cause">The 'lab-ui' job failed at step 'Run npm ci', which points to a dependency failure.</dd>
+              </div>
+              <div>
+                <dt>confidence</dt>
+                <dd class="meter"><span class="pct num">85%</span><span class="bar"><i></i></span></dd>
+              </div>
+              <div>
+                <dt>evidence · 5 cited</dt>
+                <dd>
+                  <ul class="ev">
+                    <li><span class="kind">job</span><q>job concluded 'failure': lab-ui</q></li>
+                    <li><span class="kind">step</span><q>failed step name: Run npm ci</q></li>
+                    <li><span class="kind">annotation</span><q>.github:106 exit code 1</q></li>
+                    <li><span class="kind">commit</span><q>commit 268a1fd</q></li>
+                    <li><span class="kind">recent</span><q>2 runs: failure/failure</q></li>
+                  </ul>
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </article>
+
+        <article class="panel gate" aria-label="Human approval gate">
+          <div class="phead"><span class="dot green pulse"></span><span class="gtitle">human approval required</span></div>
+          <div class="pbody">
+            <p class="proposed">proposed write: <span class="tool">open_fix_pr</span> · draft-only · dry-run</p>
+            <div class="cmdline">open_fix_pr → zaakirio/crucible</div>
+            <div class="gate-btns" aria-hidden="true">
+              <span class="demo approve">✓ approve</span>
+              <span class="demo reject">✕ reject</span>
+            </div>
+            <p class="fine">a rejected approval blocks the write — a dedicated eval proves it</p>
+          </div>
+        </article>
+      </div>
+
+    </div>
+    <p class="console-caption">
+      Rendered from the recorded triage of <a href="https://github.com/zaakirio/crucible/actions/runs/28951398431">zaakirio/crucible run 28951398431</a>,
+      one of the 12 real CI-failure fixtures. Offline reference run: deterministic stand-in model, dry-run, no writes.
+    </p>
+  </div>
+</div>
+
+<div class="classes" aria-label="Failure classes">
+  <div class="wrap">
+    <p class="clabel">every triage lands in one of ten failure classes — this run:</p>
+    <div class="chiprow">
+      <span class="chip active">dependency</span>
+      <span class="chip">lint</span>
+      <span class="chip">test</span>
+      <span class="chip">build</span>
+      <span class="chip">security_audit</span>
+      <span class="chip">performance</span>
+      <span class="chip">infra</span>
+      <span class="chip">regression</span>
+      <span class="chip">flaky</span>
+      <span class="chip">unknown</span>
+    </div>
+  </div>
+  <div class="evidence-strip">
+    <div class="frame">
+      <div class="bar">failure annotation · fetched read-only from the run</div>
+      <pre><span class="hot">".github:106 Process completed with exit code 1."</span></pre>
     </div>
   </div>
 </div>
 
+<div class="depth">
+
 <aside class="measured" aria-label="Measured numbers">
   <div class="wrap">
-    <div class="cell"><div class="v num">30</div><div class="k">unit tests, offline, no API key needed</div></div>
-    <div class="cell"><div class="v num">14/78</div><div class="k">trajectory evals / checks, all passing, gated in CI</div></div>
-    <div class="cell"><div class="v num">12</div><div class="k">real recorded CI failures as eval fixtures (astro, prettier, hono, zod, svelte, express + this portfolio)</div></div>
-    <div class="cell"><div class="v num">$0.0684</div><div class="k">cost of one triage, metered from token usage (offline reference)</div></div>
-    <div class="cell"><div class="v num">100%</div><div class="k">of writes behind human approval, asserted by the evals</div></div>
-  </div>
-  <div class="wrap">
-    <p class="src">measured 2026-07-08: npm test and npm run eval on that day's HEAD; per-triage cost from the offline flux demo trace of the same date (deterministic stand-in model, see limitations).</p>
+    <div class="band">
+      <div class="cell"><div class="v num">78</div><div class="k">trajectory checks across 14 evals, all passing, gated in CI — plus 30 offline unit tests</div></div>
+      <div class="cell"><div class="v num">$0.0684</div><div class="k">cost of one triage, metered from token usage across both models (offline reference)</div></div>
+      <div class="cell"><div class="v num">100%</div><div class="k">of writes behind human approval, asserted by the evals — dry-run by default</div></div>
+    </div>
+    <p class="src">measured 2026-07-08: npm test and npm run eval on that day's HEAD; per-triage cost from the offline flux demo trace of the same date (deterministic stand-in model, see limitations). 12 eval fixtures are real recorded CI failures: astro, prettier, hono, zod, svelte, express + this portfolio.</p>
   </div>
 </aside>
 
@@ -79,14 +190,14 @@
       write, stay within budget, and cite real log evidence.
     </p>
     <ol class="ledger">
-      <li><span class="lk">01</span><div><b>Ingest.</b><p>A failed workflow run comes in as repo plus run id.</p></div></li>
-      <li><span class="lk">02</span><div><b>Investigate, read-only.</b><p>Fetch the run, its jobs and failed steps, the failure annotations, the failing commit diff, and recent runs of the same workflow to gauge flakiness. Read tools have no side effects.</p></div></li>
-      <li><span class="lk">03</span><div><b>Classify and diagnose.</b><p>A cheap claude-haiku-4-5 first pass, then a claude-sonnet-5 investigation that records a structured diagnosis: failure_class, root_cause, confidence, cited evidence, flakiness_assessment, recommended_action.</p></div></li>
-      <li><span class="lk">04</span><div><b>Act, behind approval.</b><p>Re-run failed jobs, post a diagnostic comment, or open a fix PR. Each is a tool marked needsApproval, defaults to dry-run, and renders an approval card in the UI that gates continuation. A rejected approval blocks the write, and a dedicated eval proves it.</p></div></li>
-      <li><span class="lk">05</span><div><b>Stay in budget.</b><p>A hard cap on steps, tokens, and dollars, summed across every model call, with an explicit stop.</p></div></li>
+      <li><div><b>Ingest.</b><p>A failed workflow run comes in as repo plus run id.</p></div></li>
+      <li><div><b>Investigate, read-only.</b><p>Fetch the run, its jobs and failed steps, the failure annotations, the failing commit diff, and recent runs of the same workflow to gauge flakiness. Read tools have no side effects.</p></div></li>
+      <li><div><b>Classify and diagnose.</b><p>A cheap claude-haiku-4-5 first pass, then a claude-sonnet-5 investigation that records a structured diagnosis: failure_class, root_cause, confidence, cited evidence, flakiness_assessment, recommended_action.</p></div></li>
+      <li><div><b>Act, behind approval.</b><p>Re-run failed jobs, post a diagnostic comment, or open a fix PR. Each is a tool marked needsApproval, defaults to dry-run, and renders an approval card in the UI that gates continuation. A rejected approval blocks the write, and a dedicated eval proves it.</p></div></li>
+      <li><div><b>Stay in budget.</b><p>A hard cap on steps, tokens, and dollars, summed across every model call, with an explicit stop.</p></div></li>
     </ol>
-    <div class="frame how-frame">
-      <div class="bar">record_diagnosis · one real offline triage of zaakirio/crucible run 28951398431</div>
+    <div class="frame">
+      <div class="bar">record_diagnosis · the same offline triage, as the agent recorded it</div>
       <pre>{
   <span class="hl">"failure_class"</span>:        <span class="hot">"dependency"</span>,          <span class="dim">// haiku first pass: 85% confidence</span>
   <span class="hl">"root_cause"</span>:           "The 'lab-ui' job failed at step 'Run npm ci',
@@ -98,7 +209,7 @@
     { "kind": "commit",     "quote": "commit 268a1fd" },
     { "kind": "recent_runs","quote": "2 recent same-workflow runs (failure/failure)" }
   ],
-  <span class="hl">"recommended_action"</span>:   <span class="ok">"open_fix_pr"</span>          <span class="dim">// WRITE tool -&gt; waits for approval</span>
+  <span class="hl">"recommended_action"</span>:   <span class="okc">"open_fix_pr"</span>          <span class="dim">// WRITE tool -&gt; waits for approval</span>
 }</pre>
     </div>
   </div>
@@ -106,11 +217,11 @@
 
 <section id="console">
   <div class="wrap">
-    <h2>The incident console</h2>
+    <h2>The real console</h2>
     <p class="lede">
-      Left: the incidents. Center: the streamed agent trajectory. Right: the structured
-      diagnosis and a live cost meter that sums real dollars from token usage across both
-      models.
+      Screenshots of the running app, not comps. Left rail: the incidents. Center: the streamed
+      agent trajectory. Right: the structured diagnosis and a live cost meter that sums real
+      dollars from token usage across both models.
     </p>
     <div class="shots">
       <figure class="shot full">
@@ -137,7 +248,7 @@
       fixtures, so everything below runs with no API key. The full matrix (live models,
       live GitHub, live writes) is in RUN_WITH_KEYS.md.
     </p>
-    <div class="frame how-frame">
+    <div class="frame">
       <div class="bar">quench · zsh</div>
       <pre><span class="hl">npm</span> install
 <span class="hl">npm</span> test        <span class="dim"># 30 unit tests</span>
@@ -148,7 +259,7 @@
   </div>
 </section>
 
-<section class="honest">
+<section class="honest" id="limitations">
   <div class="wrap">
     <h2>Limitations, stated plainly</h2>
     <ul>
@@ -160,6 +271,8 @@
     <p class="why">Copied from the Limitations section of the quench README, 2026-07-08. The 12 eval fixtures are real public GitHub Actions failures, used read-only; provenance is in fixtures/README.md.</p>
   </div>
 </section>
+
+</div>
 
 </main>
 
@@ -180,5 +293,6 @@
   </div>
 </footer>
 
+<script src="assets/quench-bg.js" defer></script>
 </body>
 </html>
