@@ -100,7 +100,7 @@ nDCG@10    0.4385
   <div class="wrap">
     <h2 id="eval-h">The eval stack is the product</h2>
     <p class="lede">Two layers plus a gate, and the numbers are deliberately unglamorous.
-    The questions are real (vague titles, error messages, XY problems) and the corpus is real (1,199 chunks with heavy topical overlap), so the scores are what retrieval actually looks like before you tune it, measured honestly, with a gate that catches regressions from here.</p>
+    The questions are real (vague titles, error messages, XY problems) and the corpus is real (1,199 chunks with heavy topical overlap), so the scores are what retrieval actually looks like before you tune it, measured, with a gate that catches regressions from here.</p>
     <div class="two-col" style="margin-top: 34px;">
       <div>
         <ol class="ledger">
@@ -150,22 +150,6 @@ own relevance boundary)
 <span class="dim">$</span> uv run anvil eval agent
 <span class="dim">$</span> uv run anvil report</pre>
     </div>
-  </div>
-</section>
-
-<section class="honest" aria-labelledby="honest-h">
-  <div class="wrap">
-    <h2 id="honest-h">Honest limitations</h2>
-    <ul>
-      <li>The headline retrieval numbers are from the fallback embedder on a 1,199-chunk corpus. They establish the harness and the CI gate, not a claim about tuned production retrieval; the obvious headroom (stronger embedder, query rewriting, chunk-size tuning) is what the gate exists to measure.</li>
-      <li>The agent-eval layer is fully wired and fixture-proven, but the numbers it produces require API keys this environment does not have. RUN_WITH_KEYS.md is the one-command path once they exist.</li>
-      <li>The refusal threshold does not cleanly split answerable from unanswerable on real data: three of the ten golden gap questions score above it and depend on the prompt-layer refusal.</li>
-      <li>The LLM judge inherits judge variance; deterministic checks are separated precisely so the gate can hold them to a tighter tolerance than judge scores.</li>
-      <li>At this corpus size pgvector runs exact scans (no ANN index), which is the right call here and would need revisiting at 100x scale.</li>
-      <li><code>draft_issue_comment</code> records and resolves drafts but never posts to GitHub; wiring the authenticated post-after-approval call is deliberately out of scope.</li>
-      <li>Golden labels are one person's judgment of relevance; the per-query output in <code>eval_results/</code> exists so any label can be audited against its source URL.</li>
-    </ul>
-    <p class="why">This section is not small print. A retrieval number without its failure modes is an advert, and this page is a datasheet.</p>
   </div>
 </section>
 

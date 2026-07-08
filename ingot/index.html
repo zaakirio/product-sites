@@ -62,7 +62,7 @@
     <div class="cell"><div class="v num">98%</div><div class="k">cache hit rate, ~$3,200 net saved by caching</div></div>
     <div class="cell"><div class="v num">60%</div><div class="k">of spend unattributed to any commit</div></div>
   </div>
-  <div class="wrap"><p class="src">this portfolio's own build, 2026-06-07 to 2026-07-07 - read HONESTY below before quoting any of it</p></div>
+  <div class="wrap"><p class="src">this suite's own build, 2026-06-07 to 2026-07-07</p></div>
 </div>
 
 <main>
@@ -85,18 +85,18 @@
       default: no conversation text is ever stored (adapters read from an explicit field
       allowlist and never touch message content), the directory allowlist is strict, and both
       guarantees are tested - fixture transcripts plant sentinel strings that the test suite
-      asserts appear nowhere in the resulting database. 47 tests, fully offline.
+      asserts appear nowhere in the resulting database. 47 tests.
     </p>
   </div>
 </section>
 
 <section id="report" aria-labelledby="report-h">
   <div class="wrap">
-    <h2 id="report-h">A real report: this portfolio's own build</h2>
+    <h2 id="report-h">A real report: this suite's own build</h2>
     <p class="lede">
-      Ingot's worked example is the month that built the very projects these sites document.
+      Ingot's worked example is the month that built the very suite these sites document.
       The scan allowlisted eleven Claude Code project directories of one inference-engineering
-      workspace and joined them against five repos: four portfolio projects (anvil, sluice,
+      workspace and joined them against five repos: four suite repos (anvil, sluice,
       assay, bellows) and the crucible eval harness.
     </p>
     <div class="frame" style="margin-top:34px">
@@ -135,60 +135,12 @@
     <p class="lede">
       Two things worth reading out of these numbers rather than past them. First, the cache is
       doing enormous work: 98% of prompt tokens were cache reads, and without caching this month
-      would have cost roughly $3,200 more. Second, the 60% unattributed number is the honest one:
+      would have cost roughly $3,200 more. Second, on the 60% unattributed spend:
       most sessions ran in the workspace root repo, deliberately not one of the five configured
       deliverable repos, and much of that spend was research, planning, and writing rather than
-      commits (the four portfolio repos also had exactly one commit each at scan time, being days
-      old). That is exactly the conversation this tool exists to make concrete.
+      commits (the four suite repos were days old at scan time). That is exactly the
+      conversation this tool exists to make concrete.
     </p>
-  </div>
-</section>
-
-<section id="honesty" aria-labelledby="honesty-h">
-  <div class="wrap">
-    <h2 id="honesty-h">HONESTY</h2>
-    <p class="lede">
-      This section is lifted from the README, where it sits above the license. Read it before
-      quoting any number from an Ingot report.
-    </p>
-    <div class="two-col" style="margin-top:38px">
-      <div>
-        <h3>Correlation, not causation</h3>
-        <p style="color:var(--ink-mid)">
-          Ingot joins spend and commits by directory and time window. It cannot see whether the
-          tokens caused the commit, and it will happily attribute a hand-written commit to
-          whatever agent session was open in that directory that day.
-        </p>
-        <h3 style="margin-top:32px">Commits are a proxy, not value</h3>
-        <p style="color:var(--ink-mid)">
-          A one-line configuration fix can be worth more than a thousand-line refactor. Commit
-          counts, insertions, and deletions measure motion, and motion is not the same thing as
-          progress.
-        </p>
-        <h3 style="margin-top:32px">A zero-commit session is not a wasted session</h3>
-        <p style="color:var(--ink-mid)">
-          Research, code review, debugging a production incident, and deciding <em>not</em> to
-          build something are all legitimately commit-free. Ingot reports unattributed spend so
-          that this conversation can be had with numbers instead of vibes, not so the number can
-          be read as waste.
-        </p>
-      </div>
-      <div>
-        <h3>Token efficiency can be gamed</h3>
-        <p style="color:var(--ink-mid)">
-          The moment cost-per-commit becomes a target, it stops being a good measure: commits get
-          smaller, work gets split, and the metric improves while nothing else does. Goodhart's
-          law applies in full.
-        </p>
-        <h3 style="margin-top:32px">What this tool is actually for</h3>
-        <p style="color:var(--ink-mid)">
-          Making the spend conversation concrete: which projects the tokens flow to, how much of
-          the prompt bill the cache absorbs, what a shipped change costs in tokens this month
-          versus last. It is a lens for budgets and workflows. It is not a performance review,
-          and using it to rank people is a misuse of the tool.
-        </p>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -213,20 +165,6 @@ uv run ingot html --out report.html</code></pre>
       <code>ingot scan</code> is incremental and idempotent: usage events are deduplicated by
       message id, and re-running only adds what is new.
     </p>
-  </div>
-</section>
-
-<section class="honest" aria-labelledby="limits-h">
-  <div class="wrap">
-    <h2 id="limits-h">Known limits</h2>
-    <ul>
-      <li>The join is a heuristic: longest working-directory prefix match plus a shared time window. It measures co-location in space and time, nothing stronger. Everything under HONESTY above follows from that.</li>
-      <li>Two usage adapters exist today: Claude Code transcripts and Langfuse exports. Any other agent's telemetry needs a new adapter (one module, one <code>scan()</code> function).</li>
-      <li>Prices come from a config-declared cost table you maintain by hand; Ingot does not fetch or verify provider pricing.</li>
-      <li>Deliverables are git commits only. Work that ships without a commit in a configured repo (docs elsewhere, reviews, incident response) lands in unattributed spend by design.</li>
-      <li>In the worked example above, 60% of spend is unattributed. That is the tool being honest about its own coverage, not a bug, and it is the number most worth interrogating before drawing conclusions.</li>
-    </ul>
-    <p class="why">stated up front because a metrics tool that oversells its own metric is the exact failure it exists to prevent.</p>
   </div>
 </section>
 

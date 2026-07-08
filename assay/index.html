@@ -56,7 +56,7 @@ code { overflow-wrap: anywhere; }
     <div class="cell"><div class="v num">50.0%</div><div class="k">doc accuracy on the synthetic arm, same model, same harness</div></div>
     <div class="cell"><div class="v num">86.0%</div><div class="k">total-field exact match on real receipts</div></div>
     <div class="cell"><div class="v num">0</div><div class="k">schema failures across both runs (constrained decoding)</div></div>
-    <div class="cell"><div class="v num">51</div><div class="k">offline tests, no model needed</div></div>
+    <div class="cell"><div class="v num">51</div><div class="k">tests, model-free</div></div>
   </div>
   <div class="wrap"><p class="src">source: assay eval (32 synthetic invoices) + assay eval --dataset sroie --limit 50 (SROIE 2019 real receipts) · LFM2.5-1.2B Q4_K_M via llama.cpp on M4 Pro · runs 2026-07-07 · full outputs in results/</p></div>
 </section>
@@ -78,7 +78,7 @@ code { overflow-wrap: anywhere; }
                             └── repair ────┘ (one retry)</pre>
     </div>
     <p style="margin-top: 28px; max-width: var(--measure); color: var(--ink-mid);">The harness runs on two arms with two distinct jobs.
-    Real data (SROIE 2019 scanned receipts) keeps the numbers honest; the 32-invoice synthetic arm is a controlled stress test that plants ambiguity, typos, and contradictions on purpose, with ground truth emitted by the same code that renders the PDFs.
+    Real data (SROIE 2019 scanned receipts) grounds the numbers in documents nobody designed; the 32-invoice synthetic arm is a controlled stress test that plants ambiguity, typos, and contradictions on purpose, with ground truth emitted by the same code that renders the PDFs.
     The synthetic arm flagged the day/month transposition failure class before any real document was scored; on the real arm, 9 of the 22 date errors were exactly that.</p>
   </div>
 </section>
@@ -106,7 +106,7 @@ schema failures               <span class="ok">0</span></pre>
         Date errors repeat the transposition class the synthetic arm predicted.
         Company fails by picking the wrong header line (a cashier's name over the business name); total fails by selecting a nearby plausible amount, not by arithmetic.</p>
         <p style="margin-top: 18px; color: var(--ink-mid);">Routing on real data is the sobering result: 26.0% of receipts auto-accepted, and every auto-accepted receipt had at least one wrong field, almost always the address.
-        The honest operational conclusion: on real receipts with this model, automation is total-and-date triage at best, and the address field must never be an auto-accept criterion.
+        The operational conclusion: on real receipts with this model, automation is total-and-date triage at best, and the address field must never be an auto-accept criterion.
         The per-field report is what tells you that before you promise otherwise.</p>
       </div>
     </div>
@@ -140,7 +140,7 @@ schema failures               <span class="ok">0</span></pre>
     <div class="frame" style="margin-top: 34px;">
       <div class="bar">terminal</div>
       <pre><span class="dim">$</span> uv sync
-<span class="dim">$</span> uv run pytest                 <span class="dim"># 51 offline tests, no model needed</span>
+<span class="dim">$</span> uv run pytest                 <span class="dim"># 51 tests</span>
 
 <span class="dim"># serve a model first (reference-run setup shown)</span>
 <span class="dim">$</span> /path/to/llama-server -m LFM2.5-1.2B-Instruct-Uncensored-Q4_K_M.gguf \
@@ -154,23 +154,6 @@ schema failures               <span class="ok">0</span></pre>
 <span class="dim">$</span> uv run assay run data/golden/inv_001.pdf   <span class="dim"># single document, prints JSON</span>
 <span class="dim">$</span> uv run assay review           <span class="dim"># work the review queue in the terminal</span></pre>
     </div>
-  </div>
-</section>
-
-<section class="honest" aria-labelledby="honest-h">
-  <div class="wrap">
-    <h2 id="honest-h">Honest limitations</h2>
-    <ul>
-      <li>All reference numbers are from a deliberately small 1.2B local model. It is not good enough to run this unattended, and the harness proves that with per-field granularity; the pipeline is the deliverable, the model is a placeholder you swap via <code>--url</code>.</li>
-      <li>The invoice golden set is synthetic; layouts are messy in designed ways, not in the ways a decade of real supplier PDFs are messy. The SROIE arm measures that gap (50.0% to 2.0%) instead of guessing at it.</li>
-      <li>SROIE annotations carry known noise: address fragments absent from the provided OCR cap that field at an 18% ceiling on this slice, a property of the benchmark, not of the pipeline.</li>
-      <li>The SROIE reference run covers the first 50 receipts of the 361-receipt test split, one model, one machine; run the full split by dropping <code>--limit</code>.</li>
-      <li>Text-layer PDFs and pre-OCR'd text only; there is no OCR stage of its own yet, so scanned and photographed invoices need one in front of ingest.</li>
-      <li>The routing threshold was chosen by sweeping on the same 32 documents it is evaluated on; production would hold out a tuning set.</li>
-      <li>The self-check adds a second model call per document (roughly 40% of latency) and its signal on a 1.2B is weak; the repair loop retried 8 times and improved nothing at this model size.</li>
-      <li>Cloud costs are estimates from list prices, and throughput numbers are from one run on one M4 Pro.</li>
-    </ul>
-    <p class="why">This section is not small print. An accuracy number without its failure modes is an advert, and this page is a datasheet.</p>
   </div>
 </section>
 

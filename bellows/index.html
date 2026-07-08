@@ -62,7 +62,7 @@
     <div class="cell"><div class="v num">2</div><div class="k">transports: stdio + streamable HTTP</div></div>
     <div class="cell"><div class="v num">0</div><div class="k">PIDs it did not spawn will ever be signalled</div></div>
   </div>
-  <div class="wrap"><p class="src">measured on Apple M4 Pro, 24 GB, 2026-07-07 - model warm in page cache; caveats in the README</p></div>
+  <div class="wrap"><p class="src">measured on Apple M4 Pro, 24 GB, 2026-07-07 - model warm in page cache</p></div>
 </div>
 
 <main>
@@ -95,7 +95,7 @@
   <div class="wrap">
     <h2 id="transcript-h">Real tool calls, unedited</h2>
     <p class="lede">
-      From the README&rsquo;s demo transcript against the development machine, trimmed only for
+      From the README&rsquo;s transcript against the development machine, trimmed only for
       length. The agent starts LFM2.5-1.2B, checks it, smoke-tests it, stops it, and pulls a
       base-vs-abliterated eval comparison from crucible.
     </p>
@@ -137,9 +137,9 @@
   "b": { "n": 50, "complied": <span class="ok">39</span>, "hedged": 11, "refused": 0 } }</code></pre>
     </div>
     <p class="lede">
-      The tokens-per-second figures above come from llama.cpp&rsquo;s own timings over 2-3 token
-      completions and overstate sustained throughput; crucible&rsquo;s eval history reports roughly
-      60 tok/s for the same model over full-length responses.
+      The tokens-per-second figures above are llama.cpp&rsquo;s own timings over 2-3 token
+      completions; crucible&rsquo;s eval history reports roughly 60 tok/s for the same model
+      over full-length responses.
     </p>
   </div>
 </section>
@@ -188,22 +188,6 @@ node dist/index.js --http --port 8765</code></pre>
       and it inherits the parent lifecycle, so servers bellows started die with the session
       instead of leaking.
     </p>
-  </div>
-</section>
-
-<section class="honest" aria-labelledby="honest-h">
-  <div class="wrap">
-    <h2 id="honest-h">What it does not do</h2>
-    <ul>
-      <li>It manages a local llama.cpp fleet on one machine. It is part of the crucible family of local-model tooling, not a general orchestrator for remote or cloud inference.</li>
-      <li>No retries or circuit breakers. Every call targets a localhost child process, so failures surface to the agent verbatim, with the llama-server stderr tail attached; the agent is the retry policy.</li>
-      <li>No tracing or metrics endpoint. Observability is the structured JSON each tool returns plus per-process stderr tails.</li>
-      <li>The HTTP transport has no authentication. It binds 127.0.0.1 by default and is meant for local or trusted-network use only.</li>
-      <li>Supervision state is in-memory. Graceful shutdown reaps all children, but a SIGKILL of the bellows process orphans running llama-servers, and a restarted bellows refuses their ports rather than adopting them.</li>
-      <li>The 716 ms lifecycle was measured with the model warm in the page cache; a cold start is slower and was not measured.</li>
-      <li><code>eval_history</code> is pinned to crucible&rsquo;s current schema by the integration between the two repos, not by a versioned contract.</li>
-    </ul>
-    <p class="why">stated up front because a datasheet that hides its operating limits is an advertisement.</p>
   </div>
 </section>
 

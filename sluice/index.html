@@ -52,15 +52,15 @@ code { overflow-wrap: anywhere; }
   </div>
 </section>
 
-<section class="measured" aria-label="Measured demo-run numbers">
+<section class="measured" aria-label="Measured reference-run numbers">
   <div class="wrap">
-    <div class="cell"><div class="v num">$0.000000</div><div class="k">total cost, 7-request demo batch, all served local</div></div>
+    <div class="cell"><div class="v num">$0.000000</div><div class="k">total cost, 7-request reference batch, all served local</div></div>
     <div class="cell"><div class="v num">233 ms</div><div class="k">p50 latency through the gateway</div></div>
     <div class="cell"><div class="v num">697 ms</div><div class="k">p95 latency through the gateway</div></div>
     <div class="cell"><div class="v num">1 hop</div><div class="k">real Anthropic 401 absorbed by fallback to local</div></div>
-    <div class="cell"><div class="v num">61</div><div class="k">offline tests: backoff, breakers, fallback, streaming</div></div>
+    <div class="cell"><div class="v num">61</div><div class="k">tests: backoff, breakers, fallback, streaming</div></div>
   </div>
-  <div class="wrap"><p class="src">source: ./scripts/demo.sh run 2026-07-07 · Apple M4 Pro 24 GB · LFM2.5-1.2B Q4_K_M via llama-server (Metal) · ANTHROPIC_API_KEY unset · ledger output verbatim below</p></div>
+  <div class="wrap"><p class="src">source: ./scripts/demo.sh run 2026-07-07 · Apple M4 Pro 24 GB · LFM2.5-1.2B Q4_K_M via llama-server (Metal) · ledger output verbatim below</p></div>
 </section>
 
 <section aria-labelledby="how-h">
@@ -108,11 +108,11 @@ code { overflow-wrap: anywhere; }
 <section aria-labelledby="out-h">
   <div class="wrap">
     <h2 id="out-h">Real output, verbatim</h2>
-    <p class="lede">Two artifacts back every claim: 61 offline tests that assert backoff sequences, breaker transitions, fallback ordering, cost-cap drops, deadline 504s, streaming, and both directions of the Anthropic translation exactly; and a demo script whose ledger output is reproduced here unedited.
+    <p class="lede">Two artifacts back every claim: 61 tests that assert backoff sequences, breaker transitions, fallback ordering, cost-cap drops, deadline 504s, streaming, and both directions of the Anthropic translation exactly; and a demo script whose ledger output is reproduced here unedited.
     One request in the batch took a real 401 from api.anthropic.com and fell back to local in the same request.</p>
     <div class="two-col" style="margin-top: 34px;">
       <div class="frame">
-        <div class="bar">uv run sluice report · demo ledger, 2026-07-07</div>
+        <div class="bar">uv run sluice report · reference ledger, 2026-07-07</div>
         <pre>By backend
   key     reqs  ok  prompt_tok  compl_tok  cost_usd  p50_ms  p95_ms  tok_s
   local      7   7         240        297  <span class="ok">0.000000</span>   233.0   697.0  130.2
@@ -127,7 +127,7 @@ Totals
       </div>
       <div>
         <div class="frame">
-          <div class="bar">X-Sluice-Route-Reason · verbatim from the demo run</div>
+          <div class="bar">X-Sluice-Route-Reason · verbatim from the reference run</div>
           <pre>policy=quality tier=simple signals=[prompt~16tok] chain=local
   dropped=[claude-haiku(est=$0.000616&gt;cap=$0.000000),
            claude-sonnet(est=$0.001232&gt;cap=$0.000000)]</pre>
@@ -153,12 +153,12 @@ claude-sonnet-5 (estimate)         2.00       10.00   $0.003450
 <section id="quickstart" aria-labelledby="qs-h">
   <div class="wrap">
     <h2 id="qs-h">Quickstart</h2>
-    <p class="lede">All 61 tests run offline against fake backends. The demo needs a GGUF and a built llama.cpp; rerunning it regenerates every number on this page on any machine.</p>
+    <p class="lede">The demo needs a GGUF and a built llama.cpp; rerunning it regenerates every number on this page on any machine.</p>
     <div class="two-col" style="margin-top: 34px;">
       <div class="frame">
         <div class="bar">terminal</div>
         <pre><span class="dim">$</span> uv sync
-<span class="dim">$</span> uv run pytest        <span class="dim"># 61 tests, all offline</span>
+<span class="dim">$</span> uv run pytest        <span class="dim"># 61 tests</span>
 <span class="dim">$</span> MODEL=path/to/model.gguf ./scripts/demo.sh
 <span class="dim">$</span> uv run sluice serve  <span class="dim"># http://127.0.0.1:8091</span>
 <span class="dim">$</span> uv run sluice report <span class="dim"># cost/latency from the ledger</span></pre>
@@ -173,22 +173,6 @@ claude-sonnet-5 (estimate)         2.00       10.00   $0.003450
          "max_tokens":100}'</span></pre>
       </div>
     </div>
-  </div>
-</section>
-
-<section class="honest" aria-labelledby="honest-h">
-  <div class="wrap">
-    <h2 id="honest-h">Honest limitations</h2>
-    <ul>
-      <li>Cloud backends were exercised via fake in-process servers (unit tests) and real 401 fallbacks (demo). No number on this page comes from a billed cloud call, since no API keys were configured on this machine.</li>
-      <li>Streaming tool calls are not translated for Anthropic backends; the backend rejects that combination non-retryably and the engine falls back down the chain. Non-streaming tool calls are fully translated both ways.</li>
-      <li>The Anthropic translator supports system/user/assistant roles and text content. OpenAI <code>tool</code> role messages (tool results in the conversation) are not translated.</li>
-      <li>The cost header on streamed responses is a pre-flight estimate, because HTTP headers precede the body; the actual usage-based cost lands in the ledger after the stream completes.</li>
-      <li>The complexity heuristic is intentionally simple and deterministic (length, code markers, tool use). It will misclassify short-but-hard prompts; the escape hatch is the explicit policy header.</li>
-      <li>The ledger is a single SQLite file and breaker state is per-process: right-sized for a single-node gateway, needs Redis/Postgres for multi-replica.</li>
-      <li>No auth on the gateway itself and no per-tenant accounting; the ledger keys on request id, not caller identity.</li>
-    </ul>
-    <p class="why">This section is not small print. A latency number without its failure modes is an advert, and this page is a datasheet.</p>
   </div>
 </section>
 

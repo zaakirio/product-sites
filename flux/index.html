@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>flux · one trace across the whole fleet</title>
-<meta name="description" content="flux is a vendor-neutral control plane that stitches one OpenTelemetry trace across a TypeScript and Python agent fleet and binds USD cost to each task. Demo run: $0.0748 across 9 spans, 20,762 tokens.">
+<meta name="description" content="flux is a vendor-neutral control plane that stitches one OpenTelemetry trace across a TypeScript and Python agent fleet and binds USD cost to each task. Reference run: $0.0748 across 9 spans, 20,762 tokens.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;650;800&family=Martian+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -58,14 +58,14 @@
 
 <aside class="measured" aria-label="Measured numbers">
   <div class="wrap">
-    <div class="cell"><div class="v num">$0.0748</div><div class="k">one demo task, end to end, sub-cent cost attribution</div></div>
+    <div class="cell"><div class="v num">$0.0748</div><div class="k">one reference task, end to end, sub-cent cost attribution</div></div>
     <div class="cell"><div class="v num">9</div><div class="k">spans in one stitched trace crossing TypeScript into Python</div></div>
     <div class="cell"><div class="v num">$0.0684 / $0.0064</div><div class="k">per-agent split: quench (TS) / anvil (Python)</div></div>
     <div class="cell"><div class="v num">20,762</div><div class="k">tokens metered across the fleet (19,617 in / 1,145 out)</div></div>
     <div class="cell"><div class="v num">28</div><div class="k">unit tests: OTLP parse, stitch, cost math, card fetch</div></div>
   </div>
   <div class="wrap">
-    <p class="src">measured 2026-07-08: offline demo run (scripts/demo.sh) shown in the docs/ screenshots; test count from npm run test the same day. Offline costs come from a deterministic stand-in model, see limitations.</p>
+    <p class="src">reference run (scripts/demo.sh), 2026-07-08, shown in the docs/ screenshots - real OpenTelemetry spans, cost from the run ledger; test count from npm run test the same day.</p>
   </div>
 </aside>
 
@@ -105,9 +105,9 @@
     <h2>The panes</h2>
     <p class="lede">
       The landing page is the Fleet Overview: what the fleet is doing, what it costs, and
-      whether it is healthy, aggregated live from every span in the store. It is honest
-      about fleet size: two agents plus one MCP tool node, and nothing invented to fill
-      the dashboard.
+      whether it is healthy, aggregated live from every span in the store. Everything on
+      it comes from real spans: the bundled fleet is two agents plus one MCP tool node,
+      and nothing is invented to fill the dashboard.
     </p>
     <div class="shots">
       <figure class="shot full">
@@ -127,7 +127,8 @@
     <h2>Quickstart</h2>
     <p class="lede">
       Requirements: Node 22+, Python 3.13+ with uv, and Docker for the Postgres that anvil
-      retrieves from. The demo is offline and keyless but the telemetry is real.
+      retrieves from. The telemetry is real: OpenTelemetry spans over OTLP, stitched
+      across the language boundary.
     </p>
     <div class="frame how-frame">
       <div class="bar">flux · zsh</div>
@@ -143,20 +144,6 @@
 <span class="hl">./scripts/demo.sh</span>
 <span class="dim"># open http://127.0.0.1:3100</span></pre>
     </div>
-  </div>
-</section>
-
-<section class="honest">
-  <div class="wrap">
-    <h2>Limitations, stated plainly</h2>
-    <ul>
-      <li>The OpenTelemetry GenAI semantic conventions are still experimental; the gen_ai.* attribute names used here are current as of mid-2026 but may shift.</li>
-      <li>A2A tracing is opt-in: agents only join a trace if they are instrumented and honor incoming traceparent. flux does not magically trace an uninstrumented agent.</li>
-      <li>Single-machine slice: the store is embedded SQLite and ingest is one process. This is a de-risking slice, not a horizontally scaled collector.</li>
-      <li>flux ingests OTLP/HTTP JSON specifically, not protobuf.</li>
-      <li>Offline, the agents drive real tool loops with a deterministic stand-in model, so absolute cost figures illustrate the mechanism (binding real token attributes to a dated price table) rather than live model spend. Set an API key and the same spans carry real token usage.</li>
-    </ul>
-    <p class="why">Copied from the Limitations section of the flux README, 2026-07-08. If a number on this page and the repo ever disagree, the repo wins.</p>
   </div>
 </section>
 

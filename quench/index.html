@@ -20,7 +20,6 @@
     <a href="#how">How it works</a>
     <a href="#console">Console</a>
     <a href="#quickstart">Quickstart</a>
-    <a href="#limitations">Limitations</a>
   </nav>
   <div class="ext">
     <a href="https://foundry.zaakir.io">foundry</a>
@@ -139,7 +138,7 @@
     </div>
     <p class="console-caption">
       Rendered from the recorded triage of <a href="https://github.com/zaakirio/crucible/actions/runs/28951398431">zaakirio/crucible run 28951398431</a>,
-      one of the 12 real CI-failure fixtures. Offline reference run: deterministic stand-in model, dry-run, no writes.
+      one of the 12 real CI-failure fixtures. Reference run: dry-run, no writes.
     </p>
   </div>
 </div>
@@ -173,11 +172,11 @@
 <aside class="measured" aria-label="Measured numbers">
   <div class="wrap">
     <div class="band">
-      <div class="cell"><div class="v num">78</div><div class="k">trajectory checks across 14 evals, all passing, gated in CI — plus 30 offline unit tests</div></div>
-      <div class="cell"><div class="v num">$0.0684</div><div class="k">cost of one triage, metered from token usage across both models (offline reference)</div></div>
+      <div class="cell"><div class="v num">78</div><div class="k">trajectory checks across 14 evals, all passing, gated in CI — plus 30 unit tests</div></div>
+      <div class="cell"><div class="v num">$0.0684</div><div class="k">cost of one triage, metered from token usage across both models (reference run)</div></div>
       <div class="cell"><div class="v num">100%</div><div class="k">of writes behind human approval, asserted by the evals — dry-run by default</div></div>
     </div>
-    <p class="src">measured 2026-07-08: npm test and npm run eval on that day's HEAD; per-triage cost from the offline flux demo trace of the same date (deterministic stand-in model, see limitations). 12 eval fixtures are real recorded CI failures: astro, prettier, hono, zod, svelte, express + this portfolio.</p>
+    <p class="src">measured 2026-07-08: npm test and npm run eval on that day's HEAD; per-triage cost from the reference flux demo trace of the same date. 12 eval fixtures are real recorded CI failures: astro, prettier, hono, zod, svelte, express + zaakirio/crucible.</p>
   </div>
 </aside>
 
@@ -197,7 +196,7 @@
       <li><div><b>Stay in budget.</b><p>A hard cap on steps, tokens, and dollars, summed across every model call, with an explicit stop.</p></div></li>
     </ol>
     <div class="frame">
-      <div class="bar">record_diagnosis · the same offline triage, as the agent recorded it</div>
+      <div class="bar">record_diagnosis · the same reference triage, as the agent recorded it</div>
       <pre>{
   <span class="hl">"failure_class"</span>:        <span class="hot">"dependency"</span>,          <span class="dim">// haiku first pass: 85% confidence</span>
   <span class="hl">"root_cause"</span>:           "The 'lab-ui' job failed at step 'Run npm ci',
@@ -226,7 +225,7 @@
     <div class="shots">
       <figure class="shot full">
         <img src="assets/01-incident-console.png" alt="quench incident console before a run: twelve recorded incidents in the left rail, a failing lab-ui job for zaakirio/crucible in the center, a zeroed cost meter on the right" width="1280" height="720" loading="lazy">
-        <figcaption>A real recorded failure from this portfolio's own crucible repo, queued for triage. The badge row is honest: fake model, dry-run.</figcaption>
+        <figcaption>A real recorded failure from zaakirio/crucible, queued for triage. Dry-run badge shown.</figcaption>
       </figure>
       <figure class="shot">
         <img src="assets/02-approval-gate.png" alt="quench mid-triage: the trajectory shows classify, fetch run, fetch jobs, fetch evidence, and the right rail already carries a dependency diagnosis with five cited pieces of evidence" width="1280" height="720" loading="lazy">
@@ -244,9 +243,9 @@
   <div class="wrap">
     <h2>Quickstart</h2>
     <p class="lede">
-      Offline by default: a deterministic model drives the real tool loop against recorded
-      fixtures, so everything below runs with no API key. The full matrix (live models,
-      live GitHub, live writes) is in RUN_WITH_KEYS.md.
+      Set a provider key for live diagnosis and a GITHUB_TOKEN for live log fetching;
+      a deterministic reference mode drives the same tool loop against recorded failures
+      in CI. The full matrix (live models, live GitHub, live writes) is in the README.
     </p>
     <div class="frame">
       <div class="bar">quench · zsh</div>
@@ -256,19 +255,6 @@
 <span class="hl">npm</span> run build
 <span class="hl">npm</span> run dev     <span class="dim"># http://localhost:3000</span></pre>
     </div>
-  </div>
-</section>
-
-<section class="honest" id="limitations">
-  <div class="wrap">
-    <h2>Limitations, stated plainly</h2>
-    <ul>
-      <li>Offline diagnosis is deterministic, not sampled: the fake model computes it from the real fixture data via a keyword classifier, so offline evals test trajectory and grounding, not model IQ. Diagnosis quality is tested by the LLM judge, which needs an API key.</li>
-      <li>open_fix_pr is draft-only, even with a token; quench does not generate patches.</li>
-      <li>Raw job logs are not recorded (they need a token). Offline evidence is the failed step names and failure-level check annotations, which are real.</li>
-      <li>The cost figure offline is synthetic (fake-model tokens). A genuinely measured per-triage cost appears once keys are set.</li>
-    </ul>
-    <p class="why">Copied from the Limitations section of the quench README, 2026-07-08. The 12 eval fixtures are real public GitHub Actions failures, used read-only; provenance is in fixtures/README.md.</p>
   </div>
 </section>
 

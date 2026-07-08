@@ -1,6 +1,6 @@
 /* quench site system - a deliberate departure from the shared datasheet lane.
    Deep-water navy console over a live WebGL quench scene (ember cooling to teal).
-   Same family voice: real numbers as imagery, mono evidence, honest limitations. */
+   Same family voice: real numbers as imagery, mono evidence. */
 
 :root {
   --bg: oklch(0.145 0.028 245);
@@ -548,9 +548,6 @@ section h2 { font-size: var(--step-2); font-weight: 750; letter-spacing: -0.02em
   color: var(--ink-dim);
 }
 
-/* limitations */
-.honest ul { margin: 24px 0 0; padding: 0 0 0 1.2em; display: grid; gap: 12px; color: var(--ink-mid); max-width: var(--measure); }
-.honest .why { margin-top: 22px; font-family: var(--mono); font-size: var(--step--1); color: var(--ink-dim); max-width: 88ch; }
 
 /* footer */
 footer {

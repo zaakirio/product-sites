@@ -1,7 +1,7 @@
 /* Foundry datasheet system - shared across all product sites.
    Lane: industrial specimen sheet, not SaaS landing. Dark workshop charcoal,
    one committed accent per product (set --accent* on :root per site),
-   real numbers as imagery, honest-limitations as a first-class section. */
+   real numbers as imagery. */
 
 :root {
   --bg: oklch(0.16 0.008 55);
@@ -211,14 +211,6 @@ section .lede { max-width: var(--measure); color: var(--ink-mid); margin-top: 16
 .shot img { width: 100%; height: auto; display: block; }
 .shot figcaption { padding: 12px 16px; font-family: var(--mono); font-size: var(--step--1); color: var(--ink-dim); border-top: 1px solid var(--line); }
 figure.shot { margin: 0; }
-
-/* ── the honest plate: limitations, stated plainly ─────── */
-
-.honest { background: var(--bg-deep); }
-.honest h2 { font-size: var(--step-2); }
-.honest ul { margin: 20px 0 0; padding-left: 1.2em; max-width: var(--measure); color: var(--ink-mid); }
-.honest li { margin-top: 8px; }
-.honest .why { margin-top: 22px; font-family: var(--mono); font-size: var(--step--1); color: var(--ink-dim); max-width: var(--measure); }
 
 /* ── footer ────────────────────────────────────────────── */
 
