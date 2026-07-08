@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundry · the AI-engineering product family</title>
+<meta name="description" content="Foundry is the portfolio map for eight measured AI-engineering products by Zaakir: Flux, Quench, Anvil, Ingot, Sluice, Assay, Crucible, and Bellows.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;650;800&family=Martian+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+:root{
+  --accent: oklch(0.68 0.17 45);
+  --accent-bright: oklch(0.78 0.18 50);
+  --accent-ink: oklch(0.17 0.035 45);
+  --accent-tint: oklch(0.68 0.17 45 / 0.14);
+}
+.family{flex-wrap:wrap}
+.family .gh{overflow-wrap:anywhere}
+
+/* hero houses the WebGL constellation */
+.hero{padding:0;border-bottom:1px solid var(--line);position:relative;overflow:hidden;min-height:min(78vh,720px);display:flex;align-items:center}
+.hero-inner{position:relative;max-width:1120px;margin:0 auto;padding:clamp(26px,5vw,64px) var(--pad);width:100%}
+.hero h1{font-size:var(--step-4);font-weight:800;letter-spacing:-0.03em;position:relative;z-index:3}
+.hero .tag{color:var(--ink);max-width:22ch;position:relative;z-index:3}
+.hero .what{max-width:74ch;position:relative;z-index:3}
+.hero .cta-row{position:relative;z-index:3}
+
+#fleet-stage{
+  position:absolute;inset:0;width:100%;height:100%;display:block;
+  z-index:1;cursor:grab;
+}
+#fleet-stage:active{cursor:grabbing}
+.hero-inner > *{position:relative}
+
+.hero-meta{
+  position:absolute;left:var(--pad);bottom:18px;z-index:3;
+  font-family:var(--mono);font-size:var(--step--1);color:var(--ink-dim);
+  display:flex;gap:18px;flex-wrap:wrap;pointer-events:none;
+}
+.hero-meta .live{color:var(--accent-bright)}
+.hero-meta .live::before{
+  content:"";display:inline-block;width:7px;height:7px;border-radius:50%;
+  background:var(--accent-bright);margin-right:7px;vertical-align:1px;
+  animation:blink 2.4s ease-in-out infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* node tooltip */
+#node-tip{
+  position:absolute;z-index:5;pointer-events:none;opacity:0;
+  transform:translate(-50%,-130%);transition:opacity .12s ease;
+  background:var(--bg-deep);border:1px solid var(--line-strong);
+  border-radius:8px;padding:9px 13px;min-width:150px;
+  font-family:var(--mono);font-size:var(--step--1);
+  box-shadow:0 12px 40px -12px #000;
+}
+#node-tip.on{opacity:1}
+#node-tip .nt-name{color:var(--ink);font-weight:700;font-size:15px;letter-spacing:-0.01em}
+#node-tip .nt-role{color:var(--ink-dim);margin-top:2px}
+#node-tip .nt-go{color:var(--accent-bright);margin-top:6px}
+
+/* SVG fallback (no-js / reduced motion) */
+.fleet-fallback{display:none;margin-top:clamp(22px,4vw,40px);overflow-x:auto}
+.fleet-fallback img{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:12px;background:var(--bg-deep)}
+.no-js .fleet-fallback{display:block}
+
+.lineup{margin-top:clamp(22px,4vw,40px)}
+.matrix{border-top:1px solid var(--line)}
+.product-row{display:grid;grid-template-columns:190px minmax(220px,1fr) minmax(220px,1fr);gap:18px;padding:20px 0;border-bottom:1px solid var(--line);align-items:start;transition:background .15s ease}
+.product-row:hover{background:var(--surface)}
+.product-row a{font-size:var(--step-1);font-weight:750;text-decoration:none}
+.product-row .role{color:var(--ink-mid)}
+.product-row .proof{font-family:var(--mono);font-size:var(--step--1);color:var(--ink-dim);line-height:1.65}
+.thread{display:grid;grid-template-columns:minmax(260px,4fr) minmax(320px,6fr);gap:clamp(24px,4vw,56px);align-items:start;margin-top:34px}
+.thread .frame{position:sticky;top:72px}
+.read-path{margin:0;padding:0;list-style:none;border-top:1px solid var(--line)}
+.read-path li{display:grid;grid-template-columns:84px 1fr;gap:18px;padding:18px 0;border-bottom:1px solid var(--line)}
+.read-path .lk{font-family:var(--mono);color:var(--accent-bright)}
+.read-path p{margin:4px 0 0;color:var(--ink-mid)}
+.index-note{margin-top:18px;color:var(--ink-dim);font-family:var(--mono);font-size:var(--step--1);max-width:var(--measure)}
+@media(max-width:820px){
+  .product-row{grid-template-columns:1fr}
+  .thread{grid-template-columns:1fr}
+  .thread .frame{position:static}
+}
+</style>
+</head>
+<body>
+
+<header class="family">
+  <strong>foundry</strong>
+  <span class="sep">&middot;</span>
+  <a href="https://zaakir.io">zaakir.io</a>
+  <a class="gh" href="https://github.com/zaakirio">github.com/zaakirio</a>
+</header>
+
+<main>
+
+<div class="hero">
+  <canvas id="fleet-stage" aria-hidden="true"></canvas>
+  <div class="hero-inner">
+    <h1>Foundry</h1>
+    <p class="tag">One portfolio, eight measured AI-engineering systems.</p>
+    <p class="what">
+      Foundry is the connective map for the product family at <code>*.zaakir.io</code>.
+      Flux binds the fleet together with trace, cost, registry, and eval health.
+      Quench and Anvil are agent nodes. Ingot accounts for tokens against delivered work.
+      Sluice routes model calls, Assay proves extraction with per-field evals, and the
+      Crucible/Bellows pair keeps the local-inference specialist story contained and measured.
+    </p>
+    <div class="cta-row">
+      <a class="btn primary" href="https://flux.zaakir.io">Start with Flux</a>
+      <a class="btn ghost" href="#lineup">Inspect the lineup</a>
+    </div>
+    <div class="fleet-fallback">
+      <img src="assets/fleet-map.svg" alt="Foundry product map with Flux at the center connecting the eight products" width="1280" height="520">
+    </div>
+  </div>
+  <div class="hero-meta">
+    <span class="live">fleet map · live</span>
+    <span>flux binds one trace across 2 languages</span>
+    <span>drag to orbit · click a node to open</span>
+  </div>
+  <div id="node-tip" role="tooltip" aria-hidden="true">
+    <div class="nt-name"></div>
+    <div class="nt-role"></div>
+    <div class="nt-go">open ↗</div>
+  </div>
+</div>
+
+<aside class="measured" aria-label="Portfolio proof points">
+  <div class="wrap">
+    <div class="cell"><div class="v num">8</div><div class="k">public products, each with a repo and product site</div></div>
+    <div class="cell"><div class="v num">1</div><div class="k">fleet control plane binding trace, cost, registry, and eval status</div></div>
+    <div class="cell"><div class="v num">14/78</div><div class="k">Quench trajectory evals / checks, gated offline</div></div>
+    <div class="cell"><div class="v num">$0.0748</div><div class="k">Flux demo task across Quench and Anvil, costed end to end</div></div>
+    <div class="cell"><div class="v num">0.567</div><div class="k">Anvil retrieval recall@5 on 52 real questions</div></div>
+  </div>
+  <div class="wrap">
+    <p class="src">Numbers are portfolio snapshots from the product READMEs and sites as of 2026-07-08. If a site and its repo ever disagree, the repo wins.</p>
+  </div>
+</aside>
+
+<section id="lineup" class="lineup">
+  <div class="wrap">
+    <h2>The lineup</h2>
+    <p class="lede">
+      The portfolio is arranged as a fleet, not a pile of demos. Each project owns one screened
+      AI-engineering signal and exposes enough evidence for a skeptical reader to audit it.
+    </p>
+    <div class="matrix">
+      <div class="product-row">
+        <a href="https://flux.zaakir.io">flux</a>
+        <div class="role">Vendor-neutral control plane for heterogeneous agent fleets.</div>
+        <div class="proof">Proves one stitched OpenTelemetry trace across Quench (TS) and Anvil (Python), with per-agent cost and eval-health roster.</div>
+      </div>
+      <div class="product-row">
+        <a href="https://quench.zaakir.io">quench</a>
+        <div class="role">CI/deployment incident-triage agent with human-gated writes.</div>
+        <div class="proof">14 trajectory evals, 78 checks, 12 real recorded GitHub Actions failures, dry-run by default.</div>
+      </div>
+      <div class="product-row">
+        <a href="https://anvil.zaakir.io">anvil</a>
+        <div class="role">Support agent over real FastAPI documentation with retrieval and answer evals.</div>
+        <div class="proof">Hybrid retrieval, rerank, grounded citations, HITL issue tools, recall@5 0.567 on real questions.</div>
+      </div>
+      <div class="product-row">
+        <a href="https://ingot.zaakir.io">ingot</a>
+        <div class="role">Token-to-deliverable analytics for AI coding agents.</div>
+        <div class="proof">Joins agent usage telemetry with git history: spend, cache economics, cost per shipped commit.</div>
+      </div>
+      <div class="product-row">
+        <a href="https://sluice.zaakir.io">sluice</a>
+        <div class="role">Cost-aware OpenAI-compatible gateway and router.</div>
+        <div class="proof">Routing policy, fallback chains, retries, circuit breaker, SQLite cost ledger, OTel and Langfuse traces.</div>
+      </div>
+      <div class="product-row">
+        <a href="https://assay.zaakir.io">assay</a>
+        <div class="role">Enterprise document extraction with per-field evals.</div>
+        <div class="proof">Real SROIE receipts, controlled synthetic stress set, constrained decoding, validation, confidence routing.</div>
+      </div>
+      <div class="product-row">
+        <a href="https://crucible.zaakir.io">crucible</a>
+        <div class="role">Forensic eval harness for self-hosted models.</div>
+        <div class="proof">Capability, refusal behavior, tool calling, RAG, base-vs-abliterated deltas, judge grading, CI gates.</div>
+      </div>
+      <div class="product-row">
+        <a href="https://bellows.zaakir.io">bellows</a>
+        <div class="role">MCP server for operating a local llama.cpp fleet.</div>
+        <div class="proof">Typed tool calls to scan GGUF models, supervise llama-server, smoke-test, and query Crucible eval history.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="thread">
+  <div class="wrap">
+    <h2>How to read it</h2>
+    <p class="lede">
+      Start with the system-level pane, then follow the evidence down into the agents, evals,
+      cost accounting, and model-internals niche.
+    </p>
+    <div class="thread">
+      <ol class="read-path">
+        <li><span class="lk">01</span><div><b>Flux</b><p>The keystone. It shows the fleet as one operational system instead of separate repos.</p></div></li>
+        <li><span class="lk">02</span><div><b>Quench and Anvil</b><p>The live agent nodes. One handles incident triage; the other grounds answers in real docs.</p></div></li>
+        <li><span class="lk">03</span><div><b>Ingot and Sluice</b><p>The economics layer: what tokens bought, and how requests route under cost and reliability constraints.</p></div></li>
+        <li><span class="lk">04</span><div><b>Assay and Crucible</b><p>The eval story: per-field document extraction and model-level behavior measurement.</p></div></li>
+        <li><span class="lk">05</span><div><b>Bellows</b><p>The local-fleet MCP tool, deliberately kept as a specialist support story rather than the lead.</p></div></li>
+      </ol>
+      <div class="frame">
+        <div class="bar">foundry / interview map</div>
+        <pre>evals engineering        anvil, assay, crucible
+agent orchestration      quench, anvil, flux
+MCP artifact             bellows, anvil surface
+RAG metrics              anvil
+cost accounting          ingot, sluice, flux
+observability            flux, sluice, quench
+reliability boundaries   quench HITL, sluice breaker
+local model specialist   crucible, bellows</pre>
+      </div>
+    </div>
+    <p class="index-note">Foundry is an index and narrative layer, not a ninth product claim. The product repos remain the source of truth.</p>
+  </div>
+</section>
+
+<section class="honest">
+  <div class="wrap">
+    <h2>Limits, stated plainly</h2>
+    <ul>
+      <li>This is a portfolio and product family, not a hosted SaaS suite or a company homepage.</li>
+      <li>Several metrics are measured offline or on one machine. The linked product repos explain the exact setup and limits.</li>
+      <li>The product sites summarize evidence; the READMEs, fixtures, eval outputs, and code remain authoritative.</li>
+      <li>Crucible and Bellows are intentionally the local-inference niche. The portfolio lead remains cloud-API production systems because that is where the 2026 market screens hardest.</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>foundry is the product-family map</span>
+    <nav aria-label="Foundry family">
+      <a href="https://foundry.zaakir.io" aria-current="page">foundry</a>
+      <a href="https://flux.zaakir.io">flux</a>
+      <a href="https://quench.zaakir.io">quench</a>
+      <a href="https://anvil.zaakir.io">anvil</a>
+      <a href="https://ingot.zaakir.io">ingot</a>
+      <a href="https://sluice.zaakir.io">sluice</a>
+      <a href="https://assay.zaakir.io">assay</a>
+      <a href="https://crucible.zaakir.io">crucible</a>
+      <a href="https://bellows.zaakir.io">bellows</a>
+      <a href="https://github.com/zaakirio">github</a>
+    </nav>
+  </div>
+</footer>
+
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.169.0/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from "three";
+
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const coarse = matchMedia("(pointer: coarse)").matches;
+const canvas = document.getElementById("fleet-stage");
+const tip = document.getElementById("node-tip");
+
+if (reduce) {
+  document.documentElement.classList.add("no-js");
+} else {
+  init();
+}
+
+function init() {
+  const stage = canvas.parentElement;
+  let W = stage.clientWidth, H = stage.clientHeight;
+  if (H < 520) H = 620;
+
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x15120f, 0.022);
+
+  const camera = new THREE.PerspectiveCamera(48, W / H, 0.1, 200);
+  camera.position.set(0, 1.6, 20);
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setSize(W, H, false);
+  renderer.setClearColor(0x000000, 0);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+  const key = new THREE.PointLight(0xffd9a8, 2.4, 60);
+  key.position.set(8, 10, 12);
+  scene.add(key);
+
+  // product palette (matches each product site accent)
+  const PRODUCTS = [
+    { id: "flux",     name: "flux",     role: "control plane",     color: 0x8b7bf0, url: "https://flux.zaakir.io",     hub: true  },
+    { id: "quench",   name: "quench",   role: "incident triage",   color: 0x4cc9f0, url: "https://quench.zaakir.io",   ang: 0   },
+    { id: "anvil",    name: "anvil",    role: "RAG support agent", color: 0x56b6c2, url: "https://anvil.zaakir.io",    ang: 1   },
+    { id: "ingot",    name: "ingot",    role: "token analytics",   color: 0xe0b341, url: "https://ingot.zaakir.io",    ang: 2   },
+    { id: "sluice",   name: "sluice",   role: "LLM gateway",       color: 0x2dd4bf, url: "https://sluice.zaakir.io",   ang: 3   },
+    { id: "assay",    name: "assay",    role: "extraction evals",  color: 0xf4c95d, url: "https://assay.zaakir.io",    ang: 4   },
+    { id: "crucible", name: "crucible", role: "model evals",       color: 0xf2777a, url: "https://crucible.zaakir.io", ang: 5   },
+    { id: "bellows",  name: "bellows",  role: "MCP fleet tool",    color: 0xe0975a, url: "https://bellows.zaakir.io",  ang: 6   },
+  ];
+
+  const nodes = [];
+  const group = new THREE.Group();
+  scene.add(group);
+
+  // central hub: flux
+  const hubGeo = new THREE.IcosahedronGeometry(1.15, 1);
+  const hubMat = new THREE.MeshStandardMaterial({
+    color: 0x8b7bf0, emissive: 0x6a5ae0, emissiveIntensity: 0.9,
+    roughness: 0.25, metalness: 0.6, flatShading: true,
+  });
+  const hub = new THREE.Mesh(hubGeo, hubMat);
+  group.add(hub);
+  nodes.push({ mesh: hub, ...PRODUCTS[0], basePos: new THREE.Vector3(0, 0, 0) });
+
+  // hub glow halo
+  const halo = new THREE.Mesh(
+    new THREE.SphereGeometry(1.9, 32, 32),
+    new THREE.MeshBasicMaterial({ color: 0x8b7bf0, transparent: true, opacity: 0.12, side: THREE.BackSide })
+  );
+  group.add(halo);
+
+  // satellite nodes
+  const sat = PRODUCTS.slice(1);
+  const R = 8.4;
+  sat.forEach((p) => {
+    const a = (p.ang / sat.length) * Math.PI * 2;
+    const y = Math.sin(a * 1.5) * 1.8;
+    const pos = new THREE.Vector3(Math.cos(a) * R, y, Math.sin(a) * R * 0.62 - 2.5);
+
+    const geo = new THREE.OctahedronGeometry(0.62, 0);
+    const mat = new THREE.MeshStandardMaterial({
+      color: p.color, emissive: p.color, emissiveIntensity: 0.55,
+      roughness: 0.3, metalness: 0.55, flatShading: true,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.copy(pos);
+    group.add(mesh);
+
+    // small glow sprite around each node
+    const glow = new THREE.Mesh(
+      new THREE.SphereGeometry(0.95, 20, 20),
+      new THREE.MeshBasicMaterial({ color: p.color, transparent: true, opacity: 0.1, side: THREE.BackSide })
+    );
+    glow.position.copy(pos);
+    group.add(glow);
+
+    nodes.push({ mesh, glow, ...p, basePos: pos, phase: a * 2 });
+  });
+
+  // connection traces: flux -> each satellite, as flowing lines
+  const traces = [];
+  sat.forEach((p, i) => {
+    const sat0 = nodes[i + 1];
+    const curve = new THREE.CatmullRomCurve3([
+      sat0.basePos.clone(),
+      sat0.basePos.clone().multiplyScalar(0.5).lerp(new THREE.Vector3(0, 0, 0), 0.4),
+      new THREE.Vector3(0, 0, 0),
+    ]);
+    const pts = curve.getPoints(48);
+    const g = new THREE.BufferGeometry().setFromPoints(pts);
+    const m = new THREE.LineBasicMaterial({ color: p.color, transparent: true, opacity: 0.28 });
+    const line = new THREE.Line(g, m);
+    group.add(line);
+
+    // traveling pulse
+    const pulseGeo = new THREE.SphereGeometry(0.13, 12, 12);
+    const pulseMat = new THREE.MeshBasicMaterial({ color: p.color });
+    const pulse = new THREE.Mesh(pulseGeo, pulseMat);
+    group.add(pulse);
+    traces.push({ curve, pulse, speed: 0.18 + (i % 3) * 0.06, t: Math.random() });
+  });
+
+  // dust field for depth
+  const dustN = 900;
+  const dustPos = new Float32Array(dustN * 3);
+  for (let i = 0; i < dustN; i++) {
+    const r = 14 + Math.random() * 40;
+    const th = Math.random() * Math.PI * 2;
+    const ph = Math.acos(2 * Math.random() - 1);
+    dustPos[i*3]   = r * Math.sin(ph) * Math.cos(th);
+    dustPos[i*3+1] = r * Math.sin(ph) * Math.sin(th) * 0.5;
+    dustPos[i*3+2] = r * Math.cos(ph);
+  }
+  const dustGeo = new THREE.BufferGeometry();
+  dustGeo.setAttribute("position", new THREE.BufferAttribute(dustPos, 3));
+  const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({
+    color: 0xffd9a8, size: 0.06, transparent: true, opacity: 0.5, sizeAttenuation: true,
+  }));
+  scene.add(dust);
+
+  // interaction: parallax + raycast hover/click
+  const ray = new THREE.Raycaster();
+  const mouse = new THREE.Vector2(0, 0);
+  const target = new THREE.Vector2(0, 0);
+  let hovered = null;
+  let dragRot = { x: 0, y: 0 }, dragTarget = { x: 0, y: 0 }, down = false, moved = 0, lx = 0, ly = 0;
+
+  function onMove(e) {
+    const r = canvas.getBoundingClientRect();
+    const x = e.clientX - r.left, y = e.clientY - r.top;
+    mouse.x = (x / r.width) * 2 - 1;
+    mouse.y = -(y / r.height) * 2 + 1;
+    target.copy(mouse);
+    if (down) {
+      dragTarget.x = (x - lx) * 0.005 + dragRot.x;
+      dragTarget.y = (y - ly) * 0.005 + dragRot.y;
+      moved += Math.abs(x - lx) + Math.abs(y - ly);
+    }
+    lx = x; ly = y;
+    tip.style.left = x + "px";
+    tip.style.top = y + "px";
+    // raycast only on move, not every frame
+    if (!down) {
+      ray.setFromCamera(mouse, camera);
+      const hits = ray.intersectObjects(nodes.map((n) => n.mesh));
+      setHover(hits.length ? nodes.find((n) => n.mesh === hits[0].object) : null);
+    }
+  }
+  function onDown(e) { down = true; moved = 0; const r = canvas.getBoundingClientRect(); lx = e.clientX - r.left; ly = e.clientY - r.top; }
+  function onUp(e) {
+    if (down && moved < 6 && hovered) {
+      window.open(hovered.url, "_self");
+    }
+    down = false;
+  }
+  canvas.addEventListener("pointermove", onMove);
+  canvas.addEventListener("pointerdown", onDown);
+  canvas.addEventListener("pointerup", onUp);
+  canvas.addEventListener("pointerleave", () => { down = false; setHover(null); });
+
+  function setHover(n) {
+    if (hovered === n) return;
+    hovered = n;
+    nodes.forEach((nd) => {
+      const s = nd === n ? 1.4 : 1;
+      nd.mesh.scale.setScalar(s);
+    });
+    if (n) {
+      tip.classList.add("on");
+      tip.setAttribute("aria-hidden", "false");
+      tip.querySelector(".nt-name").textContent = n.name;
+      tip.querySelector(".nt-role").textContent = n.role;
+      canvas.style.cursor = "pointer";
+    } else {
+      tip.classList.remove("on");
+      tip.setAttribute("aria-hidden", "true");
+      canvas.style.cursor = down ? "grabbing" : "grab";
+    }
+  }
+
+  const clock = new THREE.Clock();
+  function loop() {
+    const dt = Math.min(clock.getDelta(), 0.05);
+    const t = clock.elapsedTime;
+
+    // camera parallax
+    camera.position.x += (target.x * 2.2 - camera.position.x) * 0.04;
+    camera.position.y += (1.6 + target.y * 1.4 - camera.position.y) * 0.04;
+    dragRot.x += (dragTarget.x - dragRot.x) * 0.08;
+    dragRot.y += (dragTarget.y - dragRot.y) * 0.08;
+    group.rotation.y = dragRot.x + t * 0.02;
+    group.rotation.x = dragRot.y * 0.5;
+    camera.lookAt(0, 0, 0);
+
+    // hub + node breathing
+    hub.rotation.y += dt * 0.3;
+    hub.rotation.x += dt * 0.12;
+    halo.scale.setScalar(1 + Math.sin(t * 1.2) * 0.04);
+
+    nodes.slice(1).forEach((nd, i) => {
+      nd.mesh.rotation.y += dt * (0.4 + i * 0.05);
+      nd.mesh.rotation.z += dt * 0.2;
+      const f = Math.sin(t * 0.8 + nd.phase) * 0.28;
+      nd.mesh.position.y = nd.basePos.y + f;
+      if (nd.glow) { nd.glow.position.y = nd.basePos.y + f; nd.glow.scale.setScalar(1 + Math.sin(t * 1.6 + nd.phase) * 0.08); }
+    });
+
+    // traveling pulses along traces
+    traces.forEach((tr) => {
+      tr.t += dt * tr.speed;
+      if (tr.t > 1) tr.t = 0;
+      const p = tr.curve.getPoint(tr.t);
+      tr.pulse.position.copy(p);
+      tr.pulse.scale.setScalar(0.6 + Math.sin(tr.t * Math.PI) * 0.8);
+    });
+
+    dust.rotation.y += dt * 0.01;
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(loop);
+  }
+  loop();
+
+  // pause when offscreen for performance
+  const io = new IntersectionObserver((ents) => {
+    ents.forEach((en) => { canvas.style.visibility = en.isIntersecting ? "visible" : "hidden"; });
+  }, { threshold: 0.05 });
+  io.observe(stage);
+
+  addEventListener("resize", () => {
+    W = stage.clientWidth; H = Math.max(stage.clientHeight, 520);
+    camera.aspect = W / H; camera.updateProjectionMatrix();
+    renderer.setSize(W, H, false);
+  });
+}
+</script>
+
+</body>
+</html>

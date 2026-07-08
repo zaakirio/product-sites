@@ -237,5 +237,5 @@ footer a { color: var(--ink-dim); }
   .hero .what { animation-delay: 130ms; }
   .hero .cta-row { animation-delay: 190ms; }
   .hero-art { animation-delay: 260ms; }
-  @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+  @keyframes rise { from { transform: translateY(14px); } }
 }

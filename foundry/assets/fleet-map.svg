@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="520" viewBox="0 0 1280 520" role="img" aria-label="Foundry product map showing Flux connecting Quench, Anvil, Ingot, Sluice, Assay, Bellows, and Crucible">
+  <defs>
+    <linearGradient id="heat" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#eeb36b"/>
+      <stop offset="1" stop-color="#b66a35"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000" flood-opacity="0.22"/>
+    </filter>
+  </defs>
+  <rect width="1280" height="520" rx="24" fill="#15120f"/>
+  <rect x="28" y="28" width="1224" height="464" rx="18" fill="#201b16" stroke="#5f4b38" stroke-width="2"/>
+  <g opacity="0.5">
+    <path d="M80 150 H1200" stroke="#5f4b38" stroke-width="1"/>
+    <path d="M80 260 H1200" stroke="#5f4b38" stroke-width="1"/>
+    <path d="M80 370 H1200" stroke="#5f4b38" stroke-width="1"/>
+    <path d="M240 70 V450" stroke="#5f4b38" stroke-width="1"/>
+    <path d="M640 70 V450" stroke="#5f4b38" stroke-width="1"/>
+    <path d="M1040 70 V450" stroke="#5f4b38" stroke-width="1"/>
+  </g>
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+    <text x="80" y="88" fill="#9f8a75" font-size="22" font-weight="700">FOUNDRY</text>
+    <text x="80" y="116" fill="#eae0d5" font-size="34" font-weight="800" letter-spacing="-0.8">one measured AI-engineering portfolio</text>
+    <text x="80" y="152" fill="#b7a895" font-size="18">registry + trace + eval + cost + RAG + routing + extraction + local model proof</text>
+  </g>
+  <g filter="url(#soft)">
+    <rect x="474" y="192" width="332" height="136" rx="14" fill="#2f2118" stroke="url(#heat)" stroke-width="3"/>
+    <text x="640" y="244" text-anchor="middle" fill="#ffe1b8" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="56" font-weight="800" letter-spacing="-1.5">flux</text>
+    <text x="640" y="286" text-anchor="middle" fill="#d2b697" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="18">one trace / cost / health across the fleet</text>
+  </g>
+  <g stroke="#d08a4b" stroke-width="2" fill="none" opacity="0.85">
+    <path d="M474 232 C370 198 300 184 210 184"/>
+    <path d="M474 288 C360 334 290 354 210 354"/>
+    <path d="M806 232 C910 198 980 184 1070 184"/>
+    <path d="M806 288 C920 334 990 354 1070 354"/>
+    <path d="M640 192 C640 150 640 128 640 104"/>
+    <path d="M640 328 C640 370 640 392 640 424"/>
+  </g>
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="28" font-weight="750">
+    <g>
+      <rect x="94" y="154" width="220" height="68" rx="10" fill="#181c1c" stroke="#546668"/>
+      <text x="204" y="196" text-anchor="middle" fill="#bdebf0">quench</text>
+      <text x="204" y="216" text-anchor="middle" fill="#93a3a5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12">incident triage</text>
+    </g>
+    <g>
+      <rect x="94" y="324" width="220" height="68" rx="10" fill="#191b18" stroke="#5c7255"/>
+      <text x="204" y="366" text-anchor="middle" fill="#c7ecbb">anvil</text>
+      <text x="204" y="386" text-anchor="middle" fill="#99a993" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12">RAG support agent</text>
+    </g>
+    <g>
+      <rect x="966" y="154" width="220" height="68" rx="10" fill="#1c171f" stroke="#705d7c"/>
+      <text x="1076" y="196" text-anchor="middle" fill="#dfc9ff">ingot</text>
+      <text x="1076" y="216" text-anchor="middle" fill="#afa0bd" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12">token to deliverable</text>
+    </g>
+    <g>
+      <rect x="966" y="324" width="220" height="68" rx="10" fill="#1e1913" stroke="#7b6246"/>
+      <text x="1076" y="366" text-anchor="middle" fill="#f4d09a">sluice</text>
+      <text x="1076" y="386" text-anchor="middle" fill="#baa37f" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12">LLM gateway</text>
+    </g>
+    <g>
+      <rect x="530" y="58" width="220" height="68" rx="10" fill="#18191f" stroke="#5d6379"/>
+      <text x="640" y="100" text-anchor="middle" fill="#d8def7">assay</text>
+      <text x="640" y="120" text-anchor="middle" fill="#a5abbd" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12">extraction evals</text>
+    </g>
+    <g>
+      <rect x="440" y="402" width="184" height="68" rx="10" fill="#211816" stroke="#7d534d"/>
+      <text x="532" y="444" text-anchor="middle" fill="#f0b0a8">crucible</text>
+      <text x="532" y="464" text-anchor="middle" fill="#b9918b" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12">model evals</text>
+    </g>
+    <g>
+      <rect x="656" y="402" width="184" height="68" rx="10" fill="#201a14" stroke="#7d6346"/>
+      <text x="748" y="444" text-anchor="middle" fill="#f0c48b">bellows</text>
+      <text x="748" y="464" text-anchor="middle" fill="#b99a76" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12">MCP fleet tool</text>
+    </g>
+  </g>
+</svg>

@@ -2,6 +2,7 @@ FROM nginx:1.27-alpine
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
+COPY foundry  /srv/sites/foundry
 COPY anvil    /srv/sites/anvil
 COPY quench   /srv/sites/quench
 COPY sluice   /srv/sites/sluice
