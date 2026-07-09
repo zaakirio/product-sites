@@ -4,504 +4,616 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Foundry · the AI-engineering product family</title>
-<meta name="description" content="Foundry is Zaakir's AI suite: eight measured AI-engineering products that work as one fleet — Flux, Quench, Anvil, Ingot, Sluice, Assay, Crucible, and Bellows.">
+<meta name="description" content="Foundry is Zaakir's AI suite: eight measured AI-engineering products that orbit as one fleet — Flux, Quench, Anvil, Ingot, Sluice, Assay, Crucible, and Bellows.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;650;800&family=Martian+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/site.css">
 <style>
+/* ── Foundry: the whole page is one galactic scene ──────────────────────── */
 :root{
-  --accent: oklch(0.68 0.17 45);
-  --accent-bright: oklch(0.78 0.18 50);
-  --accent-ink: oklch(0.17 0.035 45);
-  --accent-tint: oklch(0.68 0.17 45 / 0.14);
+  --bg:          oklch(0.10 0.020 255);
+  --bg-deep:     oklch(0.07 0.018 258);
+  --line:        oklch(0.30 0.020 250);
+  --line-strong: oklch(0.44 0.030 245);
+  --ink:      oklch(0.97 0.010 230);
+  --ink-mid:  oklch(0.82 0.018 232);
+  --ink-dim:  oklch(0.66 0.020 236);
+  --accent:        oklch(0.82 0.115 205);
+  --accent-bright: oklch(0.90 0.120 200);
+  --accent-ink:    oklch(0.13 0.040 235);
+  --surface-2:   oklch(0.21 0.026 250);
 }
-.family{flex-wrap:wrap}
-.family .gh{overflow-wrap:anywhere}
 
-/* hero houses the WebGL constellation */
-.hero{padding:0;border-bottom:1px solid var(--line);position:relative;overflow:hidden;min-height:min(78vh,720px);display:flex;align-items:center}
-.hero-inner{position:relative;max-width:1120px;margin:0 auto;padding:clamp(26px,5vw,64px) var(--pad);width:100%}
-.hero h1{font-size:var(--step-4);font-weight:800;letter-spacing:-0.03em;position:relative;z-index:3}
-.hero .tag{color:var(--ink);max-width:22ch;position:relative;z-index:3}
-.hero .what{max-width:74ch;position:relative;z-index:3}
-.hero .cta-row{position:relative;z-index:3}
-
-#fleet-stage{
-  position:absolute;inset:0;width:100%;height:100%;display:block;
-  z-index:1;cursor:grab;
+html, body{ height:100%; }
+body{
+  margin:0; background:var(--bg-deep); color:var(--ink);
+  font-family:var(--sans); overflow:hidden;
+  -webkit-font-smoothing:antialiased;
 }
-#fleet-stage:active{cursor:grabbing}
-.hero-inner > *{position:relative}
 
-.hero-meta{
-  position:absolute;left:var(--pad);bottom:18px;z-index:3;
-  font-family:var(--mono);font-size:var(--step--1);color:var(--ink-dim);
-  display:flex;gap:18px;flex-wrap:wrap;pointer-events:none;
-}
-.hero-meta .live{color:var(--accent-bright)}
-.hero-meta .live::before{
-  content:"";display:inline-block;width:7px;height:7px;border-radius:50%;
-  background:var(--accent-bright);margin-right:7px;vertical-align:1px;
-  animation:blink 2.4s ease-in-out infinite;
-}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+/* the scene */
+#space{ position:fixed; inset:0; width:100%; height:100%; display:block; z-index:0; touch-action:none; }
+.labels{ position:fixed; inset:0; z-index:2; pointer-events:none; }
 
-/* node tooltip */
-#node-tip{
-  position:absolute;z-index:5;pointer-events:none;opacity:0;
-  transform:translate(-50%,-130%);transition:opacity .12s ease;
-  background:var(--bg-deep);border:1px solid var(--line-strong);
-  border-radius:8px;padding:9px 13px;min-width:150px;
-  font-family:var(--mono);font-size:var(--step--1);
-  box-shadow:0 12px 40px -12px #000;
+/* dark corners + left scrim so overlay copy stays legible over the stars */
+.scrim{
+  position:fixed; inset:0; z-index:1; pointer-events:none;
+  background:
+    radial-gradient(120% 90% at 8% 0%, oklch(0.05 0.02 258 / 0.92), transparent 46%),
+    radial-gradient(140% 120% at 50% 120%, oklch(0.05 0.02 258 / 0.55), transparent 60%),
+    linear-gradient(180deg, oklch(0.05 0.02 258 / 0.55), transparent 22%);
 }
-#node-tip.on{opacity:1}
-#node-tip .nt-name{color:var(--ink);font-weight:700;font-size:15px;letter-spacing:-0.01em}
-#node-tip .nt-role{color:var(--ink-dim);margin-top:2px}
-#node-tip .nt-go{color:var(--accent-bright);margin-top:6px}
 
-/* SVG fallback (no-js / reduced motion) */
-.fleet-fallback{display:none;margin-top:clamp(22px,4vw,40px);overflow-x:auto}
-.fleet-fallback img{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:12px;background:var(--bg-deep)}
-.no-js .fleet-fallback{display:block}
+/* overlay copy */
+.overlay{ position:fixed; inset:0; z-index:3; pointer-events:none; }
+.overlay a, .overlay .stat{ pointer-events:auto; }
 
-.lineup{margin-top:clamp(22px,4vw,40px)}
-.matrix{border-top:1px solid var(--line)}
-.product-row{display:grid;grid-template-columns:190px minmax(220px,1fr) minmax(220px,1fr);gap:18px;padding:20px 0;border-bottom:1px solid var(--line);align-items:start;transition:background .15s ease}
-.product-row:hover{background:var(--surface)}
-.product-row a{font-size:var(--step-1);font-weight:750;text-decoration:none}
-.product-row .role{color:var(--ink-mid)}
-.product-row .proof{font-family:var(--mono);font-size:var(--step--1);color:var(--ink-dim);line-height:1.65}
-.thread{display:grid;grid-template-columns:minmax(260px,4fr) minmax(320px,6fr);gap:clamp(24px,4vw,56px);align-items:start;margin-top:34px}
-.thread .frame{position:sticky;top:72px}
-.read-path{margin:0;padding:0;list-style:none;border-top:1px solid var(--line)}
-.read-path li{display:grid;grid-template-columns:84px 1fr;gap:18px;padding:18px 0;border-bottom:1px solid var(--line)}
-.read-path .lk{font-family:var(--mono);color:var(--accent-bright)}
-.read-path p{margin:4px 0 0;color:var(--ink-mid)}
-.index-note{margin-top:18px;color:var(--ink-dim);font-family:var(--mono);font-size:var(--step--1);max-width:var(--measure)}
-@media(max-width:820px){
-  .product-row{grid-template-columns:1fr}
-  .thread{grid-template-columns:1fr}
-  .thread .frame{position:static}
+.brand{
+  position:absolute; top:clamp(20px,3.4vw,42px); left:clamp(20px,3.6vw,52px);
+  display:flex; align-items:baseline; gap:18px; flex-wrap:wrap; font-family:var(--mono);
 }
+.brand strong{ font-family:var(--sans); font-weight:800; font-size:1.2rem; letter-spacing:-0.02em; color:var(--ink); }
+.brand a{ color:var(--ink-dim); text-decoration:none; font-size:var(--step--1); }
+.brand a:hover{ color:var(--accent-bright); }
+
+.headline{
+  position:absolute; left:clamp(20px,3.6vw,52px); top:clamp(88px,12vw,150px);
+  max-width:min(16ch, 90vw);
+  font-size:clamp(1.9rem, 1.2rem + 2.6vw, 3.1rem);
+  font-weight:800; letter-spacing:-0.03em; line-height:1.05; color:var(--ink);
+  text-shadow:0 2px 30px oklch(0.05 0.02 258 / 0.9);
+}
+
+.stats{
+  position:absolute; left:clamp(20px,3.6vw,52px); bottom:clamp(58px,7vw,84px);
+  display:flex; flex-wrap:wrap; gap:clamp(18px,2.6vw,40px);
+}
+.stat{ display:flex; flex-direction:column; gap:4px; text-shadow:0 2px 20px oklch(0.05 0.02 258 / 0.85); }
+.stat .v{ font-family:var(--mono); font-weight:700; font-size:clamp(1.2rem,1rem+0.8vw,1.55rem); color:var(--ink); font-variant-numeric:tabular-nums; letter-spacing:-0.01em; }
+.stat.hub .v{ color:var(--accent-bright); }
+.stat .k{ font-family:var(--mono); font-size:var(--step--1); color:var(--ink-dim); }
+
+.hint{
+  position:absolute; left:50%; bottom:clamp(18px,3vw,30px); transform:translateX(-50%);
+  font-family:var(--mono); font-size:var(--step--1); color:var(--ink-dim);
+  text-align:center; text-shadow:0 2px 16px oklch(0.05 0.02 258 / 0.9);
+}
+.hint b{ color:var(--accent-bright); font-weight:400; }
+
+/* family nav, quiet, bottom-right */
+.family-nav{
+  position:absolute; right:clamp(20px,3.6vw,52px); bottom:clamp(18px,3vw,30px);
+  display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end; max-width:44vw;
+  font-family:var(--mono); font-size:var(--step--1);
+}
+.family-nav a{ color:var(--ink-dim); text-decoration:none; opacity:0.75; }
+.family-nav a:hover{ color:var(--accent-bright); opacity:1; }
+@media (max-width:1024px), (orientation:portrait){
+  .family-nav, .hint-drag{ display:none; }
+  .stats{
+    left:clamp(20px,3.6vw,52px); bottom:clamp(84px,12vw,120px);
+    display:grid; grid-template-columns:repeat(2, auto); gap:14px clamp(24px,4vw,44px);
+  }
+  .hint{ bottom:clamp(24px,4vw,38px); width:min(92vw,640px); }
+}
+@media (max-width:760px){
+  .headline{ top:clamp(70px,13vw,104px); font-size:clamp(1.7rem,5.8vw,2.3rem); }
+}
+
+/* star labels */
+.star-label{
+  position:absolute; font-family:var(--mono); font-size:0.8rem; letter-spacing:0.01em;
+  color:var(--ink-mid); white-space:nowrap; will-change:left,top;
+  transition:color .18s ease, opacity .25s ease; opacity:0;
+  text-shadow:0 1px 10px oklch(0.05 0.02 258 / 0.9);
+}
+.star-label.hub{ color:var(--ink); font-weight:700; }
+.star-label.show{ opacity:0.92; }
+.star-label.hot{ color:var(--ink); opacity:1; }
+.star-label.dim{ opacity:0.24; }
+@media (max-width:600px){ .star-label{ font-size:0.72rem; } }
+
+/* product dossier */
+.dossier{
+  position:fixed; z-index:6; width:min(340px, 82vw);
+  border:1px solid var(--line-strong); border-radius:15px;
+  background: linear-gradient(180deg, oklch(0.16 0.028 245 / 0.94), oklch(0.09 0.02 252 / 0.97));
+  box-shadow: 0 30px 80px -24px #000, 0 0 40px -10px oklch(0.6 0.1 210 / 0.25);
+  backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px);
+  padding:19px 19px 17px; pointer-events:auto;
+  opacity:0; transform:scale(0.9); transform-origin:var(--ox,50%) var(--oy,50%);
+  transition:opacity .22s ease, transform .3s cubic-bezier(0.16,1,0.3,1);
+}
+.dossier.open{ opacity:1; transform:scale(1); }
+.dossier .d-top{ display:flex; align-items:center; gap:11px; }
+.dossier .d-dot{ width:10px; height:10px; border-radius:50%; box-shadow:0 0 16px 2px currentColor; flex:none; }
+.dossier .d-name{ font-family:var(--sans); font-weight:800; font-size:1.32rem; letter-spacing:-0.02em; color:var(--ink); }
+.dossier .d-kind{ margin-left:2px; font-family:var(--mono); font-size:0.66rem; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.08em; }
+.dossier .d-close{ margin-left:auto; background:none; border:0; color:var(--ink-dim); cursor:pointer; font-size:19px; line-height:1; padding:2px 5px; border-radius:6px; }
+.dossier .d-close:hover{ color:var(--ink); background:var(--surface-2); }
+.dossier .d-role{ margin:10px 0 0; color:var(--ink-mid); font-size:0.93rem; line-height:1.5; }
+.dossier .d-proof{ margin:13px 0 0; font-family:var(--mono); font-size:0.75rem; line-height:1.6; color:var(--ink-dim); border-top:1px solid var(--line); padding-top:13px; }
+.dossier .d-open{
+  display:inline-flex; align-items:center; gap:7px; margin-top:15px;
+  font-family:var(--mono); font-size:0.82rem; text-decoration:none; font-weight:700;
+  color:var(--accent-ink); background:var(--accent-bright); padding:9px 15px; border-radius:9px;
+}
+.dossier .d-open:hover{ background:var(--accent); }
+
+/* no-webgl / no-js fallback: readable index of the fleet */
+.fallback{ position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; }
+.no-js{ overflow:auto; }
+.no-js body{ overflow:auto; }
+.no-js #space, .no-js .labels, .no-js .scrim, .no-js .overlay, .no-js .dossier{ display:none; }
+.no-js .fallback{
+  position:static; left:auto; width:auto; height:auto; overflow:visible;
+  max-width:900px; margin:0 auto; padding:clamp(24px,5vw,60px) var(--pad);
+}
+.no-js .fallback h2{ font-size:var(--step-2); font-weight:800; letter-spacing:-0.02em; margin:0 0 6px; }
+.no-js .fallback .frow{ display:grid; grid-template-columns:150px 1fr; gap:16px; padding:16px 0; border-top:1px solid var(--line); }
+.no-js .fallback a{ font-weight:750; text-decoration:none; font-size:var(--step-1); }
+.no-js .fallback .r{ color:var(--ink-mid); }
+.no-js .fallback .headline{ position:static; left:auto; top:auto; max-width:100%; margin:0 0 clamp(18px,3vw,32px); font-size:var(--step-3); }
 </style>
 </head>
 <body>
 
-<header class="family">
-  <strong>foundry</strong>
-  <span class="sep">&middot;</span>
-  <a href="https://zaakir.io">zaakir.io</a>
-  <a class="gh" href="https://github.com/zaakirio">github.com/zaakirio</a>
-</header>
+<canvas id="space" aria-hidden="true"></canvas>
+<div class="scrim" aria-hidden="true"></div>
+<div class="labels" id="labels" aria-hidden="true"></div>
 
-<main>
+<div class="overlay">
+  <div class="brand">
+    <strong>foundry</strong>
+    <a href="https://zaakir.io">zaakir.io</a>
+    <a href="https://github.com/zaakirio">github</a>
+  </div>
 
-<div class="hero">
-  <canvas id="fleet-stage" aria-hidden="true"></canvas>
-  <div class="hero-inner">
-    <h1>Foundry</h1>
-    <p class="tag">One suite, eight measured AI-engineering systems.</p>
-    <p class="what">
-      Foundry is the AI suite at <code>*.zaakir.io</code>.
-      Flux binds the fleet together with trace, cost, registry, and eval health.
-      Quench and Anvil are agent nodes. Ingot accounts for tokens against delivered work.
-      Sluice routes model calls, Assay proves extraction with per-field evals, and the
-      Crucible/Bellows pair measures and operates the local-inference fleet.
-    </p>
-    <div class="cta-row">
-      <a class="btn primary" href="https://flux.zaakir.io">Start with Flux</a>
-      <a class="btn ghost" href="#lineup">Inspect the lineup</a>
-    </div>
-    <div class="fleet-fallback">
-      <img src="assets/fleet-map.svg" alt="Foundry product map with Flux at the center connecting the eight products" width="1280" height="520">
-    </div>
+  <h1 class="headline">One suite, eight measured AI-engineering systems.</h1>
+
+  <div class="stats">
+    <div class="stat"><span class="v">8</span><span class="k">public products</span></div>
+    <div class="stat hub"><span class="v">1</span><span class="k">fleet control plane</span></div>
+    <div class="stat"><span class="v">$0.0748</span><span class="k">demo task cost</span></div>
+    <div class="stat"><span class="v">0.567</span><span class="k">retrieval recall</span></div>
   </div>
-  <div class="hero-meta">
-    <span class="live">fleet map · live</span>
-    <span>flux binds one trace across 2 languages</span>
-    <span>drag to orbit · click a node to open</span>
-  </div>
-  <div id="node-tip" role="tooltip" aria-hidden="true">
-    <div class="nt-name"></div>
-    <div class="nt-role"></div>
-    <div class="nt-go">open ↗</div>
-  </div>
+
+  <p class="hint">the fleet orbits <b>flux</b> · <b>click a star</b> to open it<span class="hint-drag"> · drag to turn the sky</span></p>
+
+  <nav class="family-nav" aria-label="Foundry family">
+    <a href="https://flux.zaakir.io">flux</a>
+    <a href="https://quench.zaakir.io">quench</a>
+    <a href="https://anvil.zaakir.io">anvil</a>
+    <a href="https://ingot.zaakir.io">ingot</a>
+    <a href="https://sluice.zaakir.io">sluice</a>
+    <a href="https://assay.zaakir.io">assay</a>
+    <a href="https://crucible.zaakir.io">crucible</a>
+    <a href="https://bellows.zaakir.io">bellows</a>
+  </nav>
 </div>
 
-<aside class="measured" aria-label="Suite proof points">
-  <div class="wrap">
-    <div class="cell"><div class="v num">8</div><div class="k">public products, each with a repo and product site</div></div>
-    <div class="cell"><div class="v num">1</div><div class="k">fleet control plane binding trace, cost, registry, and eval status</div></div>
-    <div class="cell"><div class="v num">14/78</div><div class="k">Quench trajectory evals / checks against real recorded CI failures</div></div>
-    <div class="cell"><div class="v num">$0.0748</div><div class="k">Flux reference task across Quench and Anvil, costed end to end</div></div>
-    <div class="cell"><div class="v num">0.567</div><div class="k">Anvil retrieval recall@5 on 52 real questions</div></div>
+<div class="dossier" id="dossier" role="dialog" aria-modal="false" aria-labelledby="d-name" hidden>
+  <div class="d-top">
+    <span class="d-dot" id="d-dot"></span>
+    <span class="d-name" id="d-name"></span>
+    <span class="d-kind" id="d-kind"></span>
+    <button class="d-close" id="d-close" aria-label="Close">&times;</button>
   </div>
-  <div class="wrap">
-    <p class="src">Numbers are snapshots from the product READMEs and sites as of 2026-07-08. If a site and its repo ever disagree, the repo wins.</p>
-  </div>
-</aside>
+  <p class="d-role" id="d-role"></p>
+  <p class="d-proof" id="d-proof"></p>
+  <a class="d-open" id="d-open" href="#">open&nbsp;↗</a>
+</div>
 
-<section id="lineup" class="lineup">
-  <div class="wrap">
-    <h2>The lineup</h2>
-    <p class="lede">
-      The suite is arranged as a fleet, not a pile of demos. Each product owns one job
-      and exposes enough evidence for a skeptical reader to audit it.
-    </p>
-    <div class="matrix">
-      <div class="product-row">
-        <a href="https://flux.zaakir.io">flux</a>
-        <div class="role">Vendor-neutral control plane for heterogeneous agent fleets.</div>
-        <div class="proof">Proves one stitched OpenTelemetry trace across Quench (TS) and Anvil (Python), with per-agent cost and eval-health roster.</div>
-      </div>
-      <div class="product-row">
-        <a href="https://quench.zaakir.io">quench</a>
-        <div class="role">CI/deployment incident-triage agent with human-gated writes.</div>
-        <div class="proof">14 trajectory evals, 78 checks, 12 real recorded GitHub Actions failures, dry-run by default.</div>
-      </div>
-      <div class="product-row">
-        <a href="https://anvil.zaakir.io">anvil</a>
-        <div class="role">Support agent over real FastAPI documentation with retrieval and answer evals.</div>
-        <div class="proof">Hybrid retrieval, rerank, grounded citations, HITL issue tools, recall@5 0.567 on real questions.</div>
-      </div>
-      <div class="product-row">
-        <a href="https://ingot.zaakir.io">ingot</a>
-        <div class="role">Token-to-deliverable analytics for AI coding agents.</div>
-        <div class="proof">Joins agent usage telemetry with git history: spend, cache economics, cost per shipped commit.</div>
-      </div>
-      <div class="product-row">
-        <a href="https://sluice.zaakir.io">sluice</a>
-        <div class="role">Cost-aware OpenAI-compatible gateway and router.</div>
-        <div class="proof">Routing policy, fallback chains, retries, circuit breaker, SQLite cost ledger, OTel and Langfuse traces.</div>
-      </div>
-      <div class="product-row">
-        <a href="https://assay.zaakir.io">assay</a>
-        <div class="role">Enterprise document extraction with per-field evals.</div>
-        <div class="proof">Real SROIE receipts, controlled synthetic stress set, constrained decoding, validation, confidence routing.</div>
-      </div>
-      <div class="product-row">
-        <a href="https://crucible.zaakir.io">crucible</a>
-        <div class="role">Forensic eval harness for self-hosted models.</div>
-        <div class="proof">Capability, refusal behavior, tool calling, RAG, base-vs-abliterated deltas, judge grading, CI gates.</div>
-      </div>
-      <div class="product-row">
-        <a href="https://bellows.zaakir.io">bellows</a>
-        <div class="role">MCP server for operating a local llama.cpp fleet.</div>
-        <div class="proof">Typed tool calls to scan GGUF models, supervise llama-server, smoke-test, and query Crucible eval history.</div>
-      </div>
-    </div>
-  </div>
+<!-- readable fleet index: SEO + no-WebGL fallback -->
+<section class="fallback">
+  <h1 class="headline">One suite, eight measured AI-engineering systems.</h1>
+  <h2>The fleet</h2>
+  <div class="frow"><a href="https://flux.zaakir.io">flux</a><span class="r">Vendor-neutral control plane for heterogeneous agent fleets — one stitched OpenTelemetry trace across Quench (TS) and Anvil (Python), with per-agent cost and eval-health roster.</span></div>
+  <div class="frow"><a href="https://quench.zaakir.io">quench</a><span class="r">CI/deployment incident-triage agent with human-gated writes — 14 trajectory evals, 78 checks, 12 real recorded GitHub Actions failures, dry-run by default.</span></div>
+  <div class="frow"><a href="https://anvil.zaakir.io">anvil</a><span class="r">Support agent over real FastAPI docs with retrieval and answer evals — hybrid retrieval, rerank, grounded citations, HITL issue tools, recall@5 0.567.</span></div>
+  <div class="frow"><a href="https://ingot.zaakir.io">ingot</a><span class="r">Token-to-deliverable analytics for AI coding agents — joins usage telemetry with git history: spend, cache economics, cost per shipped commit.</span></div>
+  <div class="frow"><a href="https://sluice.zaakir.io">sluice</a><span class="r">Cost-aware OpenAI-compatible gateway and router — routing policy, fallback chains, retries, circuit breaker, SQLite cost ledger, OTel + Langfuse traces.</span></div>
+  <div class="frow"><a href="https://assay.zaakir.io">assay</a><span class="r">Enterprise document extraction with per-field evals — real SROIE receipts, synthetic stress set, constrained decoding, validation, confidence routing.</span></div>
+  <div class="frow"><a href="https://crucible.zaakir.io">crucible</a><span class="r">Forensic eval harness for self-hosted models — capability, refusal, tool-calling, RAG, base-vs-abliterated deltas, judge grading, CI gates.</span></div>
+  <div class="frow"><a href="https://bellows.zaakir.io">bellows</a><span class="r">MCP server for operating a local llama.cpp fleet — typed tool calls to scan GGUF models, supervise llama-server, smoke-test, and query Crucible history.</span></div>
 </section>
-
-<section id="thread">
-  <div class="wrap">
-    <h2>How to read it</h2>
-    <p class="lede">
-      Start with the system-level pane, then follow the evidence down into the agents, evals,
-      cost accounting, and model-internals niche.
-    </p>
-    <div class="thread">
-      <ol class="read-path">
-        <li><span class="lk">01</span><div><b>Flux</b><p>The keystone. It shows the fleet as one operational system instead of separate repos.</p></div></li>
-        <li><span class="lk">02</span><div><b>Quench and Anvil</b><p>The live agent nodes. One handles incident triage; the other grounds answers in real docs.</p></div></li>
-        <li><span class="lk">03</span><div><b>Ingot and Sluice</b><p>The economics layer: what tokens bought, and how requests route under cost and reliability constraints.</p></div></li>
-        <li><span class="lk">04</span><div><b>Assay and Crucible</b><p>The eval story: per-field document extraction and model-level behavior measurement.</p></div></li>
-        <li><span class="lk">05</span><div><b>Bellows</b><p>The local-fleet MCP tool: your coding agent operates the self-hosted model fleet through typed tool calls.</p></div></li>
-      </ol>
-      <div class="frame">
-        <div class="bar">foundry / capability map</div>
-        <pre>evals engineering        anvil, assay, crucible
-agent orchestration      quench, anvil, flux
-MCP artifact             bellows, anvil surface
-RAG metrics              anvil
-cost accounting          ingot, sluice, flux
-observability            flux, sluice, quench
-reliability boundaries   quench HITL, sluice breaker
-local model specialist   crucible, bellows</pre>
-      </div>
-    </div>
-    <p class="index-note">Foundry is the front door of the suite. The product repos remain the source of truth.</p>
-  </div>
-</section>
-
-</main>
-
-<footer>
-  <div class="wrap">
-    <span>foundry is the map of the suite</span>
-    <nav aria-label="Foundry family">
-      <a href="https://foundry.zaakir.io" aria-current="page">foundry</a>
-      <a href="https://flux.zaakir.io">flux</a>
-      <a href="https://quench.zaakir.io">quench</a>
-      <a href="https://anvil.zaakir.io">anvil</a>
-      <a href="https://ingot.zaakir.io">ingot</a>
-      <a href="https://sluice.zaakir.io">sluice</a>
-      <a href="https://assay.zaakir.io">assay</a>
-      <a href="https://crucible.zaakir.io">crucible</a>
-      <a href="https://bellows.zaakir.io">bellows</a>
-      <a href="https://github.com/zaakirio">github</a>
-    </nav>
-  </div>
-</footer>
 
 <script type="importmap">
-{ "imports": { "three": "https://unpkg.com/three@0.169.0/build/three.module.js" } }
+{ "imports": {
+  "three": "https://unpkg.com/three@0.169.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.169.0/examples/jsm/"
+} }
 </script>
 <script type="module">
 import * as THREE from "three";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+
+/* the eight systems. flux is the central sun; the rest are planets on orbits. */
+const SUN = { id:"flux", name:"flux", kind:"control plane",
+  role:"Vendor-neutral control plane for heterogeneous agent fleets.",
+  proof:"One stitched OpenTelemetry trace across Quench (TS) and Anvil (Python), with per-agent cost and eval-health roster.",
+  url:"https://flux.zaakir.io", color:0x7fe3ff };
+
+const PLANETS = [
+  { id:"quench",   name:"quench",   kind:"incident triage",  color:0x4cc9f0, orbit:2.15, phase:200, size:0.85,
+    role:"CI/deployment incident-triage agent with human-gated writes.",
+    proof:"14 trajectory evals, 78 checks, 12 real recorded GitHub Actions failures · dry-run by default.", url:"https://quench.zaakir.io" },
+  { id:"anvil",    name:"anvil",    kind:"RAG support agent", color:0x56d6c2, orbit:2.95, phase:58,  size:1.0,
+    role:"Support agent over real FastAPI docs, with retrieval + answer evals.",
+    proof:"Hybrid retrieval, rerank, grounded citations, HITL issue tools · recall@5 0.567 on real questions.", url:"https://anvil.zaakir.io" },
+  { id:"ingot",    name:"ingot",    kind:"token analytics",   color:0x8fd4ff, orbit:3.6,  phase:338, size:0.8,
+    role:"Token-to-deliverable analytics for AI coding agents.",
+    proof:"Joins agent usage telemetry with git history: spend, cache economics, cost per shipped commit.", url:"https://ingot.zaakir.io" },
+  { id:"crucible", name:"crucible", kind:"model evals",       color:0x6fd0e6, orbit:4.2,  phase:128, size:0.92,
+    role:"Forensic eval harness for self-hosted models.",
+    proof:"Capability, refusal, tool-calling, RAG, base-vs-abliterated deltas, judge grading, CI gates.", url:"https://crucible.zaakir.io" },
+  { id:"sluice",   name:"sluice",   kind:"LLM gateway",       color:0x2dd4bf, orbit:4.85, phase:24,  size:0.86,
+    role:"Cost-aware OpenAI-compatible gateway and router.",
+    proof:"Routing policy, fallback chains, retries, circuit breaker, SQLite cost ledger, OTel + Langfuse traces.", url:"https://sluice.zaakir.io" },
+  { id:"assay",    name:"assay",    kind:"extraction evals",  color:0x9ad0ff, orbit:5.5,  phase:250, size:0.82,
+    role:"Enterprise document extraction with per-field evals.",
+    proof:"Real SROIE receipts, synthetic stress set, constrained decoding, validation, confidence routing.", url:"https://assay.zaakir.io" },
+  { id:"bellows",  name:"bellows",  kind:"MCP fleet tool",    color:0x7bc9ff, orbit:6.15, phase:158, size:0.9,
+    role:"MCP server for operating a local llama.cpp fleet.",
+    proof:"Typed tool calls to scan GGUF models, supervise llama-server, smoke-test, and query Crucible history.", url:"https://bellows.zaakir.io" },
+];
 
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const coarse = matchMedia("(pointer: coarse)").matches;
-const canvas = document.getElementById("fleet-stage");
-const tip = document.getElementById("node-tip");
+const canvas = document.getElementById("space");
+const labelLayer = document.getElementById("labels");
 
-if (reduce) {
-  document.documentElement.classList.add("no-js");
-} else {
-  init();
+let webglOk = true;
+try { const t = document.createElement("canvas"); webglOk = !!(t.getContext("webgl2") || t.getContext("webgl")); } catch { webglOk = false; }
+
+if (!webglOk) document.documentElement.classList.add("no-js");
+else start();
+
+/* ── textures ───────────────────────────────────────────────────────────── */
+function sparkleTexture(size = 200, spikes = 4){
+  const c = document.createElement("canvas"); c.width = c.height = size;
+  const g = c.getContext("2d"); const m = size / 2;
+  const core = g.createRadialGradient(m, m, 0, m, m, size * 0.3);
+  core.addColorStop(0, "rgba(255,255,255,1)");
+  core.addColorStop(0.4, "rgba(255,255,255,0.5)");
+  core.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = core; g.fillRect(0, 0, size, size);
+  g.globalCompositeOperation = "lighter";
+  const spike = (len, wid) => {
+    const grd = g.createLinearGradient(0, 0, len, 0);
+    grd.addColorStop(0, "rgba(255,255,255,0.95)");
+    grd.addColorStop(0.5, "rgba(255,255,255,0.22)");
+    grd.addColorStop(1, "rgba(255,255,255,0)");
+    g.fillStyle = grd;
+    g.beginPath(); g.moveTo(0, 0); g.lineTo(len, -wid); g.lineTo(len, wid); g.closePath(); g.fill();
+  };
+  for (let k = 0; k < spikes; k++){ g.save(); g.translate(m, m); g.rotate(k * Math.PI * 2 / spikes); spike(m * 0.96, size * 0.014); g.restore(); }
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+function glowTexture(size = 128){
+  const c = document.createElement("canvas"); c.width = c.height = size;
+  const g = c.getContext("2d"); const m = size / 2;
+  const grd = g.createRadialGradient(m, m, 0, m, m, m);
+  grd.addColorStop(0, "rgba(255,255,255,0.95)");
+  grd.addColorStop(0.22, "rgba(255,255,255,0.4)");
+  grd.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = grd; g.fillRect(0, 0, size, size);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
 }
 
-function init() {
-  const stage = canvas.parentElement;
-  let W = stage.clientWidth, H = stage.clientHeight;
-  if (H < 520) H = 620;
+function start(){
+  const SPARKLE4 = sparkleTexture(200, 4);
+  const SPARKLE8 = sparkleTexture(256, 8);
+  const GLOW = glowTexture();
+
+  const FLATTEN = 0.42;   // orbital-plane tilt
+  const VH = 16;          // world units across the canvas height
+  const OUTER = 6.15;     // outermost orbit
+
+  let W = innerWidth, H = innerHeight, DPR = Math.min(devicePixelRatio, 1.6);
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x15120f, 0.022);
+  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -200, 200);
+  camera.position.z = 20;
 
-  const camera = new THREE.PerspectiveCamera(48, W / H, 0.1, 200);
-  camera.position.set(0, 1.6, 20);
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:false, powerPreference:"high-performance" });
+  renderer.setClearColor(0x05070d, 1);
+  renderer.setPixelRatio(DPR);
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-  renderer.setSize(W, H, false);
-  renderer.setClearColor(0x000000, 0);
+  // bloom = "beams of light"
+  const composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  const bloom = new UnrealBloomPass(new THREE.Vector2(W, H), 0.5, 0.4, 0.22);
+  composer.addPass(bloom);
+  composer.addPass(new OutputPass());
 
-  scene.add(new THREE.AmbientLight(0xffffff, 0.35));
-  const key = new THREE.PointLight(0xffd9a8, 2.4, 60);
-  key.position.set(8, 10, 12);
-  scene.add(key);
-
-  // product palette (matches each product site accent)
-  const PRODUCTS = [
-    { id: "flux",     name: "flux",     role: "control plane",     color: 0x8b7bf0, url: "https://flux.zaakir.io",     hub: true  },
-    { id: "quench",   name: "quench",   role: "incident triage",   color: 0x4cc9f0, url: "https://quench.zaakir.io",   ang: 0   },
-    { id: "anvil",    name: "anvil",    role: "RAG support agent", color: 0x56b6c2, url: "https://anvil.zaakir.io",    ang: 1   },
-    { id: "ingot",    name: "ingot",    role: "token analytics",   color: 0xe0b341, url: "https://ingot.zaakir.io",    ang: 2   },
-    { id: "sluice",   name: "sluice",   role: "LLM gateway",       color: 0x2dd4bf, url: "https://sluice.zaakir.io",   ang: 3   },
-    { id: "assay",    name: "assay",    role: "extraction evals",  color: 0xf4c95d, url: "https://assay.zaakir.io",    ang: 4   },
-    { id: "crucible", name: "crucible", role: "model evals",       color: 0xf2777a, url: "https://crucible.zaakir.io", ang: 5   },
-    { id: "bellows",  name: "bellows",  role: "MCP fleet tool",    color: 0xe0975a, url: "https://bellows.zaakir.io",  ang: 6   },
+  // ── deep background: nebula clouds ──────────────────────────────────────
+  const bg = new THREE.Group(); scene.add(bg);
+  const nebulaDefs = [
+    { c:0x1f6f8f, x:-12, y:6,   s:24, o:0.07 },
+    { c:0x155e6e, x:14,  y:-7,  s:28, o:0.06 },
+    { c:0x24506e, x:9,   y:9,   s:20, o:0.05 },
+    { c:0x0e4f5e, x:-11, y:-8,  s:22, o:0.06 },
   ];
-
-  const nodes = [];
-  const group = new THREE.Group();
-  scene.add(group);
-
-  // central hub: flux
-  const hubGeo = new THREE.IcosahedronGeometry(1.15, 1);
-  const hubMat = new THREE.MeshStandardMaterial({
-    color: 0x8b7bf0, emissive: 0x6a5ae0, emissiveIntensity: 0.9,
-    roughness: 0.25, metalness: 0.6, flatShading: true,
+  const nebulas = nebulaDefs.map((n) => {
+    const spr = new THREE.Sprite(new THREE.SpriteMaterial({ map:GLOW, color:n.c, transparent:true, opacity:n.o, blending:THREE.AdditiveBlending, depthWrite:false }));
+    spr.position.set(n.x, n.y, -8); spr.scale.setScalar(n.s); bg.add(spr);
+    return { spr, base:n.s, o:n.o, ph:n.x + n.y };
   });
-  const hub = new THREE.Mesh(hubGeo, hubMat);
-  group.add(hub);
-  nodes.push({ mesh: hub, ...PRODUCTS[0], basePos: new THREE.Vector3(0, 0, 0) });
 
-  // hub glow halo
-  const halo = new THREE.Mesh(
-    new THREE.SphereGeometry(1.9, 32, 32),
-    new THREE.MeshBasicMaterial({ color: 0x8b7bf0, transparent: true, opacity: 0.12, side: THREE.BackSide })
-  );
-  group.add(halo);
-
-  // satellite nodes
-  const sat = PRODUCTS.slice(1);
-  const R = 8.4;
-  sat.forEach((p) => {
-    const a = (p.ang / sat.length) * Math.PI * 2;
-    const y = Math.sin(a * 1.5) * 1.8;
-    const pos = new THREE.Vector3(Math.cos(a) * R, y, Math.sin(a) * R * 0.62 - 2.5);
-
-    const geo = new THREE.OctahedronGeometry(0.62, 0);
-    const mat = new THREE.MeshStandardMaterial({
-      color: p.color, emissive: p.color, emissiveIntensity: 0.55,
-      roughness: 0.3, metalness: 0.55, flatShading: true,
+  // ── starfield (two parallax layers, twinkling) ──────────────────────────
+  const starLayers = [];
+  function makeStars(count, spread, zBase, sizeMin, sizeMax){
+    const pos = new Float32Array(count * 3), sz = new Float32Array(count), ph = new Float32Array(count);
+    for (let i = 0; i < count; i++){
+      pos[i*3] = (Math.random()*2-1)*spread;
+      pos[i*3+1] = (Math.random()*2-1)*spread*0.7;
+      pos[i*3+2] = zBase - Math.random()*4;
+      sz[i] = sizeMin + Math.random()*(sizeMax-sizeMin);
+      ph[i] = Math.random()*Math.PI*2;
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute("aSize", new THREE.BufferAttribute(sz, 1));
+    geo.setAttribute("aPhase", new THREE.BufferAttribute(ph, 1));
+    const mat = new THREE.ShaderMaterial({
+      transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+      uniforms:{ uTime:{ value:0 }, uPix:{ value:DPR } },
+      vertexShader:`attribute float aSize; attribute float aPhase; uniform float uTime; uniform float uPix; varying float vTw;
+        void main(){ float tw = 0.5 + 0.5*sin(uTime*0.8 + aPhase); vTw = tw;
+          gl_PointSize = aSize * uPix * (0.65 + 0.6*tw);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+      fragmentShader:`precision mediump float; varying float vTw;
+        void main(){ vec2 uv = gl_PointCoord-0.5; float d=length(uv); float a=smoothstep(0.5,0.0,d); a*=a;
+          gl_FragColor = vec4(vec3(0.8,0.9,1.0), a*vTw*0.9); }`,
     });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.position.copy(pos);
-    group.add(mesh);
-
-    // small glow sprite around each node
-    const glow = new THREE.Mesh(
-      new THREE.SphereGeometry(0.95, 20, 20),
-      new THREE.MeshBasicMaterial({ color: p.color, transparent: true, opacity: 0.1, side: THREE.BackSide })
-    );
-    glow.position.copy(pos);
-    group.add(glow);
-
-    nodes.push({ mesh, glow, ...p, basePos: pos, phase: a * 2 });
-  });
-
-  // connection traces: flux -> each satellite, as flowing lines
-  const traces = [];
-  sat.forEach((p, i) => {
-    const sat0 = nodes[i + 1];
-    const curve = new THREE.CatmullRomCurve3([
-      sat0.basePos.clone(),
-      sat0.basePos.clone().multiplyScalar(0.5).lerp(new THREE.Vector3(0, 0, 0), 0.4),
-      new THREE.Vector3(0, 0, 0),
-    ]);
-    const pts = curve.getPoints(48);
-    const g = new THREE.BufferGeometry().setFromPoints(pts);
-    const m = new THREE.LineBasicMaterial({ color: p.color, transparent: true, opacity: 0.28 });
-    const line = new THREE.Line(g, m);
-    group.add(line);
-
-    // traveling pulse
-    const pulseGeo = new THREE.SphereGeometry(0.13, 12, 12);
-    const pulseMat = new THREE.MeshBasicMaterial({ color: p.color });
-    const pulse = new THREE.Mesh(pulseGeo, pulseMat);
-    group.add(pulse);
-    traces.push({ curve, pulse, speed: 0.18 + (i % 3) * 0.06, t: Math.random() });
-  });
-
-  // dust field for depth
-  const dustN = 900;
-  const dustPos = new Float32Array(dustN * 3);
-  for (let i = 0; i < dustN; i++) {
-    const r = 14 + Math.random() * 40;
-    const th = Math.random() * Math.PI * 2;
-    const ph = Math.acos(2 * Math.random() - 1);
-    dustPos[i*3]   = r * Math.sin(ph) * Math.cos(th);
-    dustPos[i*3+1] = r * Math.sin(ph) * Math.sin(th) * 0.5;
-    dustPos[i*3+2] = r * Math.cos(ph);
+    const pts = new THREE.Points(geo, mat); bg.add(pts);
+    starLayers.push({ pts, mat });
   }
-  const dustGeo = new THREE.BufferGeometry();
-  dustGeo.setAttribute("position", new THREE.BufferAttribute(dustPos, 3));
-  const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({
-    color: 0xffd9a8, size: 0.06, transparent: true, opacity: 0.5, sizeAttenuation: true,
-  }));
-  scene.add(dust);
+  makeStars(520, 26, -10, 0.7, 2.2);
+  makeStars(260, 18, -6, 1.0, 3.0);
 
-  // interaction: parallax + raycast hover/click
-  const ray = new THREE.Raycaster();
-  const mouse = new THREE.Vector2(0, 0);
-  const target = new THREE.Vector2(0, 0);
-  let hovered = null;
-  let dragRot = { x: 0, y: 0 }, dragTarget = { x: 0, y: 0 }, down = false, moved = 0, lx = 0, ly = 0;
+  // ── the system group (sun + orbits + planets) ───────────────────────────
+  const system = new THREE.Group(); scene.add(system);
 
-  function onMove(e) {
+  // sun: flux
+  const sun = new THREE.Group(); system.add(sun);
+  const sunCore = new THREE.Sprite(new THREE.SpriteMaterial({ map:SPARKLE8, color:0xcdf2ff, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false, depthTest:false }));
+  sunCore.scale.setScalar(1.9); sunCore.renderOrder = 5; sun.add(sunCore);
+  const sunRays = new THREE.Sprite(new THREE.SpriteMaterial({ map:SPARKLE4, color:0x8fe6ff, transparent:true, opacity:0.4, blending:THREE.AdditiveBlending, depthWrite:false }));
+  sunRays.scale.setScalar(3.1); sun.add(sunRays);
+  const sunGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map:GLOW, color:0x27a6cc, transparent:true, opacity:0.32, blending:THREE.AdditiveBlending, depthWrite:false }));
+  sunGlow.scale.setScalar(3.7); sun.add(sunGlow);
+  sunCore.userData.node = SUN;
+
+  // planets + orbits + comet trails
+  const TRAIL_N = 140;
+  const planets = PLANETS.map((p) => {
+    const rx = p.orbit, ry = p.orbit * FLATTEN;
+    const col = new THREE.Color(p.color);
+
+    // faint full orbit path
+    const opath = [];
+    for (let i = 0; i <= 128; i++){ const a = i/128*Math.PI*2; opath.push(new THREE.Vector3(Math.cos(a)*rx, Math.sin(a)*ry, 0)); }
+    const oGeo = new THREE.BufferGeometry().setFromPoints(opath);
+    const oLine = new THREE.Line(oGeo, new THREE.LineBasicMaterial({ color:0x8fd8f0, transparent:true, opacity:0.09 }));
+    system.add(oLine);
+
+    // comet trail: additive line whose vertex colours brighten behind the planet
+    const tPos = new Float32Array((TRAIL_N+1)*3), tCol = new Float32Array((TRAIL_N+1)*3), tAng = new Float32Array(TRAIL_N+1);
+    for (let i = 0; i <= TRAIL_N; i++){ const a = i/TRAIL_N*Math.PI*2; tAng[i]=a; tPos[i*3]=Math.cos(a)*rx; tPos[i*3+1]=Math.sin(a)*ry; tPos[i*3+2]=0; }
+    const tGeo = new THREE.BufferGeometry();
+    tGeo.setAttribute("position", new THREE.BufferAttribute(tPos, 3));
+    tGeo.setAttribute("color", new THREE.BufferAttribute(tCol, 3));
+    const trail = new THREE.Line(tGeo, new THREE.LineBasicMaterial({ vertexColors:true, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false }));
+    system.add(trail);
+
+    // the planet itself: glow + luminous core
+    const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map:GLOW, color:p.color, transparent:true, opacity:0.42, blending:THREE.AdditiveBlending, depthWrite:false }));
+    halo.scale.setScalar(p.size*1.5);
+    const coreCol = new THREE.Color(p.color).lerp(new THREE.Color(0xffffff), 0.55);
+    const core = new THREE.Sprite(new THREE.SpriteMaterial({ map:SPARKLE4, color:coreCol, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false, depthTest:false }));
+    core.scale.setScalar(p.size*0.95); core.renderOrder = 5;
+    const pg = new THREE.Group(); pg.add(halo); pg.add(core); system.add(pg);
+    core.userData.node = p;
+
+    // HTML label
+    const el = document.createElement("div"); el.className = "star-label"; el.textContent = p.name;
+    labelLayer.appendChild(el);
+
+    const speed = 0.34 / Math.pow(p.orbit, 1.25);  // Keplerian-ish: outer planets slower
+    return { ...p, rx, ry, col, trail, tCol, tAng, halo, core, pg, base:p.size, label:el, speed, ang:p.phase*Math.PI/180 };
+  });
+
+  // sun label
+  const sunLabel = document.createElement("div"); sunLabel.className = "star-label hub"; sunLabel.textContent = "flux"; labelLayer.appendChild(sunLabel);
+
+  const pickables = [sunCore, ...planets.map((p) => p.core)];
+
+  // ── framing / responsive fit ────────────────────────────────────────────
+  let ppw = 1;
+  function resize(){
+    W = innerWidth; H = innerHeight; DPR = Math.min(devicePixelRatio, 1.6);
+    renderer.setPixelRatio(DPR); renderer.setSize(W, H, false);
+    composer.setPixelRatio(DPR); composer.setSize(W, H); bloom.setSize(W, H);
+    starLayers.forEach((s) => s.mat.uniforms.uPix.value = DPR);
+    const aspect = W / H;
+    camera.top = VH/2; camera.bottom = -VH/2; camera.left = -VH/2*aspect; camera.right = VH/2*aspect;
+    camera.updateProjectionMatrix();
+    ppw = H / VH;
+
+    const wide = aspect >= 1.15;
+    const cx = wide ? 0.60 : 0.5;                 // screen fraction for the sun
+    const cy = wide ? 0.55 : 0.48;
+    const labelRoom = W < 600 ? 74 : 120;
+    const hAvail = (Math.min(cx, 1-cx)*W) - labelRoom;
+    const vAvail = (Math.min(cy, 1-cy)*H) - 60;
+    const sH = hAvail / (OUTER*ppw);
+    const sV = vAvail / (OUTER*FLATTEN*ppw + labelRoom*0.4);
+    const scale = Math.max(0.32, Math.min(1.35, Math.min(sH, sV)));
+    system.scale.setScalar(scale);
+    system.userData.cx = (cx-0.5)*VH*aspect;
+    system.userData.cy = (0.5-cy)*VH;
+    positionLabels();
+  }
+
+  const v = new THREE.Vector3(), sv = new THREE.Vector3();
+  function projectPx(obj, out){ obj.getWorldPosition(v).project(camera); out.x = (v.x*0.5+0.5)*W; out.y = (-v.y*0.5+0.5)*H; }
+  const sunPx = { x:0, y:0 }, tmpPx = { x:0, y:0 };
+  function placeLabel(el, obj, isHub){
+    projectPx(obj, tmpPx);
+    let dx = tmpPx.x - sunPx.x, dy = tmpPx.y - sunPx.y;
+    const len = Math.hypot(dx, dy) || 1; dx/=len; dy/=len;
+    const gap = isHub ? 22 : 17;
+    el.style.left = (tmpPx.x + dx*gap) + "px";
+    el.style.top = (tmpPx.y + dy*gap) + "px";
+    el.style.transform = dx >= 0 ? "translate(0,-50%)" : "translate(-100%,-50%)";
+    el.classList.add("show");
+  }
+  function positionLabels(){
+    projectPx(sunCore, sunPx);
+    sunLabel.style.left = (sunPx.x + 24) + "px"; sunLabel.style.top = sunPx.y + "px"; sunLabel.style.transform = "translate(0,-50%)"; sunLabel.classList.add("show");
+    planets.forEach((p) => placeLabel(p.label, p.core, false));
+  }
+
+  // ── interaction ─────────────────────────────────────────────────────────
+  const ray = new THREE.Raycaster(); ray.params.Sprite = { threshold:0 };
+  const ndc = new THREE.Vector2();
+  const drift = { x:0, y:0, tx:0, ty:0 };
+  const spin = { v:0, t:0 };
+  let hovered = null, selected = null, isDown = false, moved = 0, dx0 = 0, dy0 = 0, lastX = 0;
+
+  function pick(e){
     const r = canvas.getBoundingClientRect();
-    const x = e.clientX - r.left, y = e.clientY - r.top;
-    mouse.x = (x / r.width) * 2 - 1;
-    mouse.y = -(y / r.height) * 2 + 1;
-    target.copy(mouse);
-    if (down) {
-      dragTarget.x = (x - lx) * 0.005 + dragRot.x;
-      dragTarget.y = (y - ly) * 0.005 + dragRot.y;
-      moved += Math.abs(x - lx) + Math.abs(y - ly);
-    }
-    lx = x; ly = y;
-    tip.style.left = x + "px";
-    tip.style.top = y + "px";
-    // raycast only on move, not every frame
-    if (!down) {
-      ray.setFromCamera(mouse, camera);
-      const hits = ray.intersectObjects(nodes.map((n) => n.mesh));
-      setHover(hits.length ? nodes.find((n) => n.mesh === hits[0].object) : null);
-    }
+    ndc.x = ((e.clientX-r.left)/r.width)*2-1; ndc.y = -((e.clientY-r.top)/r.height)*2+1;
+    ray.setFromCamera(ndc, camera);
+    const hits = ray.intersectObjects(pickables, false);
+    return hits.length ? hits[0].object.userData.node : null;
   }
-  function onDown(e) { down = true; moved = 0; const r = canvas.getBoundingClientRect(); lx = e.clientX - r.left; ly = e.clientY - r.top; }
-  function onUp(e) {
-    if (down && moved < 6 && hovered) {
-      window.open(hovered.url, "_self");
-    }
-    down = false;
+  function setHover(n){
+    if (hovered === n) return; hovered = n;
+    [sunLabel, ...planets.map(p=>p.label)].forEach((l)=>l.classList.remove("hot"));
+    if (n){ const lab = n.id==="flux" ? sunLabel : planets.find(p=>p.id===n.id).label; lab.classList.add("hot"); }
+    canvas.style.cursor = n ? "pointer" : (isDown ? "grabbing" : "grab");
   }
-  canvas.addEventListener("pointermove", onMove);
-  canvas.addEventListener("pointerdown", onDown);
-  canvas.addEventListener("pointerup", onUp);
-  canvas.addEventListener("pointerleave", () => { down = false; setHover(null); });
-
-  function setHover(n) {
-    if (hovered === n) return;
-    hovered = n;
-    nodes.forEach((nd) => {
-      const s = nd === n ? 1.4 : 1;
-      nd.mesh.scale.setScalar(s);
-    });
-    if (n) {
-      tip.classList.add("on");
-      tip.setAttribute("aria-hidden", "false");
-      tip.querySelector(".nt-name").textContent = n.name;
-      tip.querySelector(".nt-role").textContent = n.role;
-      canvas.style.cursor = "pointer";
-    } else {
-      tip.classList.remove("on");
-      tip.setAttribute("aria-hidden", "true");
-      canvas.style.cursor = down ? "grabbing" : "grab";
-    }
-  }
-
-  const clock = new THREE.Clock();
-  function loop() {
-    const dt = Math.min(clock.getDelta(), 0.05);
-    const t = clock.elapsedTime;
-
-    // camera parallax
-    camera.position.x += (target.x * 2.2 - camera.position.x) * 0.04;
-    camera.position.y += (1.6 + target.y * 1.4 - camera.position.y) * 0.04;
-    dragRot.x += (dragTarget.x - dragRot.x) * 0.08;
-    dragRot.y += (dragTarget.y - dragRot.y) * 0.08;
-    group.rotation.y = dragRot.x + t * 0.02;
-    group.rotation.x = dragRot.y * 0.5;
-    camera.lookAt(0, 0, 0);
-
-    // hub + node breathing
-    hub.rotation.y += dt * 0.3;
-    hub.rotation.x += dt * 0.12;
-    halo.scale.setScalar(1 + Math.sin(t * 1.2) * 0.04);
-
-    nodes.slice(1).forEach((nd, i) => {
-      nd.mesh.rotation.y += dt * (0.4 + i * 0.05);
-      nd.mesh.rotation.z += dt * 0.2;
-      const f = Math.sin(t * 0.8 + nd.phase) * 0.28;
-      nd.mesh.position.y = nd.basePos.y + f;
-      if (nd.glow) { nd.glow.position.y = nd.basePos.y + f; nd.glow.scale.setScalar(1 + Math.sin(t * 1.6 + nd.phase) * 0.08); }
-    });
-
-    // traveling pulses along traces
-    traces.forEach((tr) => {
-      tr.t += dt * tr.speed;
-      if (tr.t > 1) tr.t = 0;
-      const p = tr.curve.getPoint(tr.t);
-      tr.pulse.position.copy(p);
-      tr.pulse.scale.setScalar(0.6 + Math.sin(tr.t * Math.PI) * 0.8);
-    });
-
-    dust.rotation.y += dt * 0.01;
-
-    renderer.render(scene, camera);
-    requestAnimationFrame(loop);
-  }
-  loop();
-
-  // pause when offscreen for performance
-  const io = new IntersectionObserver((ents) => {
-    ents.forEach((en) => { canvas.style.visibility = en.isIntersecting ? "visible" : "hidden"; });
-  }, { threshold: 0.05 });
-  io.observe(stage);
-
-  addEventListener("resize", () => {
-    W = stage.clientWidth; H = Math.max(stage.clientHeight, 520);
-    camera.aspect = W / H; camera.updateProjectionMatrix();
-    renderer.setSize(W, H, false);
+  canvas.addEventListener("pointermove", (e) => {
+    const r = canvas.getBoundingClientRect();
+    drift.tx = (((e.clientX-r.left)/r.width)-0.5)*1.1;
+    drift.ty = (((e.clientY-r.top)/r.height)-0.5)*-0.7;
+    if (isDown){ moved += Math.abs(e.clientX-dx0)+Math.abs(e.clientY-dy0); spin.t += (e.clientX-lastX)*0.004; lastX = e.clientX; dx0 = e.clientX; dy0 = e.clientY; }
+    else setHover(pick(e));
   });
+  canvas.addEventListener("pointerdown", (e) => { isDown = true; moved = 0; dx0 = lastX = e.clientX; dy0 = e.clientY; canvas.style.cursor = "grabbing"; });
+  canvas.addEventListener("pointerup", (e) => { isDown = false; canvas.style.cursor = "grab"; if (moved < 8){ const n = pick(e); if (n) selectNode(n); else closeDossier(); } });
+  canvas.addEventListener("pointerleave", () => { isDown = false; drift.tx = 0; drift.ty = 0; setHover(null); });
+
+  // ── dossier ───────────────────────────────────────────────────────────
+  const dossier = document.getElementById("dossier");
+  const dName = document.getElementById("d-name"), dKind = document.getElementById("d-kind"),
+        dRole = document.getElementById("d-role"), dProof = document.getElementById("d-proof"),
+        dOpen = document.getElementById("d-open"), dDot = document.getElementById("d-dot");
+  document.getElementById("d-close").addEventListener("click", closeDossier);
+  addEventListener("keydown", (e) => { if (e.key === "Escape") closeDossier(); });
+  const hexOf = (c) => "#" + new THREE.Color(c).getHexString();
+
+  function selectNode(n){
+    selected = n;
+    dName.textContent = n.name; dKind.textContent = n.kind; dRole.textContent = n.role; dProof.textContent = n.proof;
+    dOpen.href = n.url; dDot.style.color = hexOf(n.color);
+    [sunLabel, ...planets.map(p=>p.label)].forEach((l)=>l.classList.add("dim"));
+    (n.id==="flux" ? sunLabel : planets.find(p=>p.id===n.id).label).classList.remove("dim");
+    dossier.hidden = false;
+    const obj = n.id==="flux" ? sunCore : planets.find(p=>p.id===n.id).core;
+    projectPx(obj, tmpPx);
+    const sx = tmpPx.x, sy = tmpPx.y;
+    requestAnimationFrame(() => {
+      const cw = dossier.offsetWidth, ch = dossier.offsetHeight;
+      let left = sx > W/2 ? sx - cw - 30 : sx + 30;
+      left = Math.max(12, Math.min(left, W - cw - 12));
+      let top = Math.max(12, Math.min(sy - ch/2, H - ch - 12));
+      dossier.style.left = left+"px"; dossier.style.top = top+"px";
+      dossier.style.setProperty("--ox", sx > W/2 ? "100%" : "0%");
+      dossier.style.setProperty("--oy", (sy-top)+"px");
+      dossier.classList.add("open");
+    });
+  }
+  function closeDossier(){
+    if (dossier.hidden) return; selected = null;
+    dossier.classList.remove("open");
+    [sunLabel, ...planets.map(p=>p.label)].forEach((l)=>l.classList.remove("dim"));
+    setTimeout(() => { if (!selected) dossier.hidden = true; }, 260);
+  }
+
+  // ── animation ─────────────────────────────────────────────────────────
+  const clock = new THREE.Clock();
+  const tmpCol = new THREE.Color();
+  function updateTrail(p){
+    const a = p.ang, arr = p.tCol, ang = p.tAng, r = p.col.r, g = p.col.g, b = p.col.b;
+    for (let i = 0; i <= TRAIL_N; i++){
+      let d = a - ang[i]; d = ((d % (Math.PI*2)) + Math.PI*2) % (Math.PI*2);   // how far this point is BEHIND the planet
+      const inten = d < 2.4 ? Math.pow(1 - d/2.4, 2.2) : 0;
+      arr[i*3] = r*inten; arr[i*3+1] = g*inten; arr[i*3+2] = b*inten;
+    }
+    p.trail.geometry.attributes.color.needsUpdate = true;
+  }
+
+  function frame(){
+    const t = clock.elapsedTime, dt = Math.min(clock.getDelta(), 0.05);
+    starLayers.forEach((s) => s.mat.uniforms.uTime.value = t);
+
+    // parallax + drag spin
+    drift.x += (drift.tx - drift.x)*0.04; drift.y += (drift.ty - drift.y)*0.04;
+    spin.v += (spin.t - spin.v)*0.06;
+    bg.position.x = drift.x*0.4; bg.position.y = drift.y*0.4;
+    bg.rotation.z = t*0.005;
+    system.position.x = system.userData.cx + drift.x; system.position.y = system.userData.cy + drift.y;
+    system.rotation.z = spin.v + t*0.012;
+
+    // sun life
+    const sp = 1 + Math.sin(t*1.4)*0.05;
+    sunCore.scale.setScalar(1.9*sp*(hovered===SUN?1.25:1)*(selected===SUN?1.35:1));
+    sunRays.material.rotation = t*0.06; sunRays.scale.setScalar(3.1*(1+Math.sin(t*0.9)*0.04));
+    sunGlow.scale.setScalar(3.7*sp);
+
+    nebulas.forEach((n) => { n.spr.scale.setScalar(n.base*(1+Math.sin(t*0.06+n.ph)*0.06)); });
+
+    // planets orbit
+    planets.forEach((p) => {
+      if (!reduce) p.ang += dt*p.speed;
+      p.pg.position.set(Math.cos(p.ang)*p.rx, Math.sin(p.ang)*p.ry, 0);
+      const isHot = hovered===p, isSel = selected===p;
+      const pulse = 1 + Math.sin(t*1.6 + p.orbit)*0.06;
+      const boost = isSel ? 1.5 : isHot ? 1.3 : 1;
+      p.core.scale.setScalar(p.base*0.95*pulse*boost);
+      p.halo.scale.setScalar(p.base*1.5*pulse*(isHot||isSel?1.4:1));
+      p.halo.material.opacity = 0.42*(isHot||isSel?1.5:1);
+      updateTrail(p);
+    });
+
+    positionLabels();
+    composer.render();
+    if (!reduce) requestAnimationFrame(frame);
+  }
+
+  resize(); addEventListener("resize", resize);
+
+  if (reduce){
+    // static placement: planets on their orbits, no motion
+    planets.forEach((p) => { p.pg.position.set(Math.cos(p.ang)*p.rx, Math.sin(p.ang)*p.ry, 0); updateTrail(p); });
+    positionLabels(); composer.render();
+    let raf = 0; const nudge = () => {
+      planets.forEach((p) => { const isHot = hovered===p, isSel = selected===p; p.core.scale.setScalar(p.base*0.95*(isSel?1.5:isHot?1.3:1)); });
+      positionLabels(); composer.render();
+    };
+    canvas.addEventListener("pointermove", () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(nudge); });
+    addEventListener("resize", () => requestAnimationFrame(nudge));
+  } else {
+    frame();
+  }
 }
 </script>
-
 </body>
 </html>
