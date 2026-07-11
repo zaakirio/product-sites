@@ -14,7 +14,7 @@
     <text x="4" y="206" font-family="ui-monospace,'SF Mono',Menlo,Consolas,monospace" font-size="14" fill="#6d6788" letter-spacing="0.4">A2A cards · OpenTelemetry · cost · evals</text>
   </g>
 
-  <!-- MANY-TO-ONE CONVERGENCE (inverse of sluice's split): four heterogeneous agent
+  <!-- MANY-TO-ONE CONVERGENCE: four heterogeneous fleet
        nodes braid through a junction into one unified, multi-colored trace spine. -->
   <g transform="translate(510,0)" fill="none" stroke-linecap="round">
     <!-- flux lines from each node to the junction at (330,160) -->
@@ -32,7 +32,7 @@
   <g transform="translate(510,0)" font-family="ui-monospace,'SF Mono',Menlo,Consolas,monospace" font-size="12" text-anchor="middle">
     <g transform="translate(0,60)"><circle cx="40" cy="0" r="9" fill="#e8792c"/><text x="40" y="-16" fill="#9a8f7e">anvil</text></g>
     <g transform="translate(0,120)"><circle cx="40" cy="0" r="9" fill="#22b8a0"/><text x="40" y="-16" fill="#7ea8a2">quench</text></g>
-    <g transform="translate(0,200)"><circle cx="40" cy="0" r="9" fill="#3d8bd4"/><text x="40" y="-16" fill="#7e93a8">sluice</text></g>
+    <g transform="translate(0,200)"><circle cx="40" cy="0" r="9" fill="#3d8bd4"/><text x="40" y="-16" fill="#7e93a8">crucible</text></g>
     <g transform="translate(0,260)"><circle cx="40" cy="0" r="9" fill="#d43d2c"/><text x="40" y="24" fill="#a8837e">bellows</text></g>
   </g>
 

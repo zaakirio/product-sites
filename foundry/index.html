@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Foundry · the AI-engineering product family</title>
-<meta name="description" content="Foundry is Zaakir's AI suite: eight measured AI-engineering products that orbit as one fleet — Flux, Quench, Anvil, Ingot, Sluice, Assay, Crucible, and Bellows.">
+<meta name="description" content="Foundry is Zaakir's AI suite: six measured AI-engineering products that orbit as one fleet - Flux, Quench, Anvil, Ingot, Assay, and the Crucible family (Crucible, Crucible Lab, Bellows).">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;650;800&family=Martian+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -170,10 +170,10 @@ body{
     <a href="https://github.com/zaakirio">github</a>
   </div>
 
-  <h1 class="headline">One suite, eight measured AI-engineering systems.</h1>
+  <h1 class="headline">One suite, six measured AI-engineering products.</h1>
 
   <div class="stats">
-    <div class="stat"><span class="v">8</span><span class="k">public products</span></div>
+    <div class="stat"><span class="v">6</span><span class="k">public products</span></div>
     <div class="stat hub"><span class="v">1</span><span class="k">fleet control plane</span></div>
     <div class="stat"><span class="v">$0.0748</span><span class="k">demo task cost</span></div>
     <div class="stat"><span class="v">0.567</span><span class="k">retrieval recall</span></div>
@@ -186,7 +186,6 @@ body{
     <a href="https://quench.zaakir.io">quench</a>
     <a href="https://anvil.zaakir.io">anvil</a>
     <a href="https://ingot.zaakir.io">ingot</a>
-    <a href="https://sluice.zaakir.io">sluice</a>
     <a href="https://assay.zaakir.io">assay</a>
     <a href="https://crucible.zaakir.io">crucible</a>
     <a href="https://bellows.zaakir.io">bellows</a>
@@ -207,16 +206,15 @@ body{
 
 <!-- readable fleet index: SEO + no-WebGL fallback -->
 <section class="fallback">
-  <h1 class="headline">One suite, eight measured AI-engineering systems.</h1>
+  <h1 class="headline">One suite, six measured AI-engineering products.</h1>
   <h2>The fleet</h2>
   <div class="frow"><a href="https://flux.zaakir.io">flux</a><span class="r">Vendor-neutral control plane for heterogeneous agent fleets — one stitched OpenTelemetry trace across Quench (TS) and Anvil (Python), with per-agent cost and eval-health roster.</span></div>
   <div class="frow"><a href="https://quench.zaakir.io">quench</a><span class="r">CI/deployment incident-triage agent with human-gated writes — 14 trajectory evals, 78 checks, 12 real recorded GitHub Actions failures, dry-run by default.</span></div>
   <div class="frow"><a href="https://anvil.zaakir.io">anvil</a><span class="r">Support agent over real FastAPI docs with retrieval and answer evals — hybrid retrieval, rerank, grounded citations, HITL issue tools, recall@5 0.567.</span></div>
   <div class="frow"><a href="https://ingot.zaakir.io">ingot</a><span class="r">Token-to-deliverable analytics for AI coding agents — joins usage telemetry with git history: spend, cache economics, cost per shipped commit.</span></div>
-  <div class="frow"><a href="https://sluice.zaakir.io">sluice</a><span class="r">Cost-aware OpenAI-compatible gateway and router — routing policy, fallback chains, retries, circuit breaker, SQLite cost ledger, OTel + Langfuse traces.</span></div>
   <div class="frow"><a href="https://assay.zaakir.io">assay</a><span class="r">Enterprise document extraction with per-field evals — real SROIE receipts, synthetic stress set, constrained decoding, validation, confidence routing.</span></div>
-  <div class="frow"><a href="https://crucible.zaakir.io">crucible</a><span class="r">Forensic eval harness for self-hosted models — capability, refusal, tool-calling, RAG, base-vs-abliterated deltas, judge grading, CI gates.</span></div>
-  <div class="frow"><a href="https://bellows.zaakir.io">bellows</a><span class="r">MCP server for operating a local llama.cpp fleet — typed tool calls to scan GGUF models, supervise llama-server, smoke-test, and query Crucible history.</span></div>
+  <div class="frow"><a href="https://crucible.zaakir.io">crucible</a><span class="r">Forensic eval harness for self-hosted models, head of the Crucible family (with Crucible Lab and Bellows) — capability, refusal, tool-calling, RAG, base-vs-abliterated deltas, judge grading, CI gates.</span></div>
+  <div class="frow"><a href="https://bellows.zaakir.io">bellows</a><span class="r">The Crucible family's MCP server for operating a local llama.cpp fleet — typed tool calls to scan GGUF models, supervise llama-server, smoke-test, and query Crucible history.</span></div>
 </section>
 
 <script type="importmap">
@@ -232,7 +230,7 @@ import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 
-/* the eight systems. flux is the central sun; the rest are planets on orbits. */
+/* the fleet. flux is the central sun; the rest are planets on orbits. */
 const SUN = { id:"flux", name:"flux", kind:"control plane",
   role:"Vendor-neutral control plane for heterogeneous agent fleets.",
   proof:"One stitched OpenTelemetry trace across Quench (TS) and Anvil (Python), with per-agent cost and eval-health roster.",
@@ -249,16 +247,13 @@ const PLANETS = [
     role:"Token-to-deliverable analytics for AI coding agents.",
     proof:"Joins agent usage telemetry with git history: spend, cache economics, cost per shipped commit.", url:"https://ingot.zaakir.io" },
   { id:"crucible", name:"crucible", kind:"model evals",       color:0x6fd0e6, orbit:4.2,  phase:128, size:0.92,
-    role:"Forensic eval harness for self-hosted models.",
+    role:"Forensic eval harness for self-hosted models; heads the crucible family with crucible lab and bellows.",
     proof:"Capability, refusal, tool-calling, RAG, base-vs-abliterated deltas, judge grading, CI gates.", url:"https://crucible.zaakir.io" },
-  { id:"sluice",   name:"sluice",   kind:"LLM gateway",       color:0x2dd4bf, orbit:4.85, phase:24,  size:0.86,
-    role:"Cost-aware OpenAI-compatible gateway and router.",
-    proof:"Routing policy, fallback chains, retries, circuit breaker, SQLite cost ledger, OTel + Langfuse traces.", url:"https://sluice.zaakir.io" },
-  { id:"assay",    name:"assay",    kind:"extraction evals",  color:0x9ad0ff, orbit:5.5,  phase:250, size:0.82,
+  { id:"assay",    name:"assay",    kind:"extraction evals",  color:0x9ad0ff, orbit:4.85, phase:250, size:0.82,
     role:"Enterprise document extraction with per-field evals.",
     proof:"Real SROIE receipts, synthetic stress set, constrained decoding, validation, confidence routing.", url:"https://assay.zaakir.io" },
-  { id:"bellows",  name:"bellows",  kind:"MCP fleet tool",    color:0x7bc9ff, orbit:6.15, phase:158, size:0.9,
-    role:"MCP server for operating a local llama.cpp fleet.",
+  { id:"bellows",  name:"bellows",  kind:"crucible family",   color:0x7bc9ff, orbit:5.5,  phase:158, size:0.9,
+    role:"The crucible family's MCP server for operating a local llama.cpp fleet.",
     proof:"Typed tool calls to scan GGUF models, supervise llama-server, smoke-test, and query Crucible history.", url:"https://bellows.zaakir.io" },
 ];
 
@@ -311,7 +306,7 @@ function start(){
 
   const FLATTEN = 0.42;   // orbital-plane tilt
   const VH = 16;          // world units across the canvas height
-  const OUTER = 6.15;     // outermost orbit
+  const OUTER = 5.5;      // outermost orbit
 
   let W = innerWidth, H = innerHeight, DPR = Math.min(devicePixelRatio, 1.6);
 

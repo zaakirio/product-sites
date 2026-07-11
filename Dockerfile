@@ -5,7 +5,6 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY foundry  /srv/sites/foundry
 COPY anvil    /srv/sites/anvil
 COPY quench   /srv/sites/quench
-COPY sluice   /srv/sites/sluice
 COPY assay    /srv/sites/assay
 COPY bellows  /srv/sites/bellows
 COPY ingot    /srv/sites/ingot

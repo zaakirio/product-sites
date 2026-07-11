@@ -1,7 +1,7 @@
 # Image-generation prompts for product-site redesigns
 
 One prompt per product, written for GPT image generation (paste one at a time into ChatGPT).
-Each is self-contained but shares the same family DNA so the eight sites read as one fleet.
+Each is self-contained but shares the same family DNA so the seven sites read as one fleet.
 
 Usage tips:
 Generate at portrait aspect (1024x1536) to get a full-page scroll; use landscape (1536x1024) if you only want the hero.
@@ -19,18 +19,6 @@ Below the hero: a horizontal diagram of an agent connecting through MCP to a row
 A stats strip with large monospace figures: "27/27 tests", "716ms lifecycle", "6 tools".
 Footer band lists sibling products as small muted wordmarks.
 Mood: quiet confidence, air and pressure, machinery you trust.
-
----
-
-## sluice
-
-High-fidelity full-page landing site design for "sluice", a developer infrastructure product, desktop screenshot, no browser chrome.
-Aesthetic: dark near-black background, engineered-channel motif of thin parallel lines that split and merge like water routed through gates, deep teal/cyan accent, grotesque sans headlines, monospace numerals.
-Hero: wordmark "sluice" lowercase, tagline "Route every token, account for every cent", and a diagram of one request flowing in from the left and branching across three backend channels labeled cheap, balanced, quality, one channel glowing as the chosen route.
-Mid-page: a cost-ledger table mock with monospace dollar amounts to six decimal places ($0.000431) and small header chips reading X-Sluice-Backend and route reason tags.
-A reliability section visualized as a circuit-breaker toggle mid-trip with a fallback arrow bypassing a dimmed backend.
-Stats strip: "p50 233ms", "61 offline tests", "$/request, exact".
-Mood: metered flow, auditability, calm control room.
 
 ---
 
