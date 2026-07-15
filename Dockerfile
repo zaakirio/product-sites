@@ -10,3 +10,4 @@ COPY bellows  /srv/sites/bellows
 COPY ingot    /srv/sites/ingot
 COPY crucible /srv/sites/crucible
 COPY flux     /srv/sites/flux
+COPY vellichor /srv/sites/vellichor
