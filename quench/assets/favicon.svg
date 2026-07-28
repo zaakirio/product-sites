@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="#0d1620"/>
+  <!-- quench: hot billet entering water, steam off the surface -->
+  <path d="M11 4.5h10l-1.2 9h-7.6z" fill="#e2632a"/>
+  <path d="M4 16.5c3.5 0 4-1.6 7-1.6s3.6 1.6 7 1.6 4-1.6 7-1.6" fill="none" stroke="#3fb6d8" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M4 22c3.5 0 4-1.6 7-1.6s3.6 1.6 7 1.6 4-1.6 7-1.6" fill="none" stroke="#2b7f9e" stroke-width="2" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="#1a1210"/>
+  <!-- bellows: hinged body forcing air out of a nozzle -->
+  <path d="M6 9.5 20 14v4L6 22.5z" fill="#c8442a"/>
+  <path d="M20 14.8h5.5v2.4H20z" fill="#e8683c"/>
+  <path d="M27 13.2c1.6 1 1.6 4.6 0 5.6" fill="none" stroke="#f0a072" stroke-width="1.7" stroke-linecap="round"/>
+</svg>

@@ -3,23 +3,55 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Anvil - Grounded answers, forged from cited sources</title>
+<title>anvil - Grounded answers, forged from cited sources</title>
 <meta name="description" content="A support agent over real product documentation, evals first: hybrid retrieval with recall@10 0.7404 on 52 real user questions, citation-required answers, deterministic refusals, HITL write boundary, and a CI regression gate.">
+<link rel="canonical" href="https://anvil.zaakir.io/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Foundry">
+<meta property="og:url" content="https://anvil.zaakir.io/">
+<meta property="og:title" content="anvil - Grounded answers, forged from cited sources">
+<meta property="og:description" content="A support agent over real FastAPI documentation, built evals first: recall@10 0.7404 on 52 real user questions, citations required, deterministic refusal, and a CI regression gate.">
+<meta property="og:image" content="https://anvil.zaakir.io/assets/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;650;800&family=Martian+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="assets/scene.jpg" media="(min-width: 721px)">
 <link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/scene.css">
 <style>
 :root {
   --accent: oklch(0.69 0.16 51);
   --accent-bright: oklch(0.77 0.17 53);
   --accent-ink: oklch(0.18 0.03 51);
   --accent-tint: oklch(0.69 0.16 51 / 0.12);
+
+  --stat-ink: var(--ink);
 }
+.hero.scene { background-image: url("assets/scene.jpg"); }
+@media (max-width: 720px) { .hero.scene { background-image: url("assets/scene-tall.jpg"); } }
 .family { flex-wrap: wrap; }
 .family .gh { min-width: 0; overflow-wrap: anywhere; }
 .two-col > * { min-width: 0; }
 code { overflow-wrap: anywhere; }
+
+/* the answer plate: cited answer beside its sources, refusal branch below */
+.answer { display: grid; grid-template-columns: minmax(0, 1fr) minmax(186px, 0.66fr); }
+@media (max-width: 560px) { .answer { grid-template-columns: 1fr; } }
+.answer .a { padding: 14px 16px; }
+.answer .s { padding: 14px 16px; border-inline-start: 1px solid var(--line); }
+@media (max-width: 560px) { .answer .s { border-inline-start: none; border-top: 1px solid var(--line); } }
+.answer .q { color: var(--ink); margin: 0 0 12px; }
+.answer .q::before { content: "? "; color: var(--accent-bright); }
+.answer p { margin: 0 0 9px; color: var(--ink-mid); }
+.answer p:last-child { margin-bottom: 0; }
+.answer .lbl { color: var(--ink-dim); font-size: 0.86em; letter-spacing: 0.04em; text-transform: uppercase; margin: 0 0 10px; }
+.answer .src { display: flex; gap: 8px; margin-bottom: 10px; align-items: flex-start; }
+.answer .src:last-child { margin-bottom: 0; }
+.answer .src code { color: var(--ink-mid); overflow-wrap: anywhere; }
 </style>
 </head>
 <body>
@@ -33,19 +65,43 @@ code { overflow-wrap: anywhere; }
 
 <main>
 
-<section class="hero" aria-labelledby="hero-h">
+<section class="hero scene" aria-labelledby="hero-h">
+  <canvas class="scene" data-mode="anvil" data-wide="assets/scene.jpg" data-tall="assets/scene-tall.jpg" aria-hidden="true"></canvas>
   <div class="wrap">
-    <h1 id="hero-h">Anvil</h1>
-    <p class="tag">Grounded answers, forged from cited sources.</p>
-    <p class="what">Support agents fail quietly: they hallucinate answers, cite nothing, call the wrong tool, or post things nobody approved.
-    Anvil is a support agent over the real FastAPI documentation, built evals first, so every one of those failure modes is a number CI can watch.
-    Point the ingestion at any markdown docs tree, rebuild the goldens, and the same measurement system holds.</p>
-    <div class="cta-row">
-      <a class="btn primary" href="https://github.com/zaakirio/anvil">View on GitHub</a>
-      <a class="btn ghost" href="#quickstart">Quickstart</a>
-    </div>
-    <div class="hero-art">
-      <img src="assets/banner.svg" alt="Anvil banner: four numbered citation nodes converge onto a bright strike point on an anvil silhouette, next to the wordmark and the tagline 'Grounded answers, forged from cited sources'." width="1280" height="320">
+    <div class="hero-grid">
+      <div>
+        <p class="wordmark">anvil</p>
+        <h1 id="hero-h">Grounded answers, forged from cited sources</h1>
+        <p class="what">Support agents fail quietly: they hallucinate answers, cite nothing, call the wrong tool, or post things nobody approved.
+        Anvil is a support agent over the real FastAPI documentation, built evals first, so every one of those failure modes is a number CI can watch.</p>
+        <div class="cta-row">
+          <a class="btn primary" href="https://github.com/zaakirio/anvil">View on GitHub</a>
+          <a class="btn ghost" href="#quickstart">Quickstart</a>
+        </div>
+      </div>
+
+      <div class="plate">
+        <div class="ph"><span class="accent">answer</span><span class="sep">·</span><span>golden a01</span><span class="right">citations required</span></div>
+        <div class="answer">
+          <div class="a">
+            <p class="q">How can I enable CORS in FastAPI?</p>
+            <p>Add <code>CORSMiddleware</code> to the application and pass the origins you want to allow. <span class="chip on">1</span></p>
+            <p>Configure <code>allow_origins</code>, <code>allow_methods</code> and <code>allow_headers</code> explicitly rather than widening all three at once. <span class="chip on">1</span></p>
+            <p>Middleware is added with <code>app.add_middleware()</code>, and order matters for anything wrapping the response. <span class="chip on">2</span></p>
+          </div>
+          <div class="s">
+            <p class="lbl">sources</p>
+            <div class="src"><span class="chip on">1</span><code>tutorial-cors#use-corsmiddleware</code></div>
+            <div class="src"><span class="chip on">2</span><code>advanced-middleware</code></div>
+            <div class="src"><span class="chip">3</span><code>tutorial-bigger-applications</code></div>
+          </div>
+        </div>
+        <div class="refuse">
+          <span class="chip bad">refused</span>
+          <span>&ldquo;How do I add rate limiting to my endpoints?&rdquo;</span>
+          <span class="right hl">cannot answer from these docs</span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -172,5 +228,6 @@ own relevance boundary)
   </div>
 </footer>
 
+<script src="assets/scene.js" defer></script>
 </body>
 </html>

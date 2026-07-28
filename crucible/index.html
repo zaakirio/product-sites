@@ -3,22 +3,39 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Crucible · what survives quantization, abliteration, and serving</title>
+<title>crucible · what survives quantization, abliteration, and serving</title>
 <meta name="description" content="Crucible is a forensic eval workbench for self-hosted models: capability, refusal behavior, tool calling, RAG, base-vs-abliterated deltas. Measured: SORRY-Bench complied 8 to 34, GSM8K 61% to 66%. pip install crucible-eval.">
+<link rel="canonical" href="https://crucible.zaakir.io/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Foundry">
+<meta property="og:url" content="https://crucible.zaakir.io/">
+<meta property="og:title" content="crucible · what survives quantization, abliteration, and serving">
+<meta property="og:description" content="A forensic eval workbench for self-hosted models. Base versus abliterated is the first-class workflow: SORRY-Bench complied 8 to 34, refusals 26 to 5, GSM8K 61% to 66%, every run provenance-hashed.">
+<meta property="og:image" content="https://crucible.zaakir.io/assets/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;650;800&family=Martian+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="assets/scene.jpg" media="(min-width: 721px)">
 <link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/scene.css">
 <style>
 :root{
   --accent: oklch(0.64 0.192 42);
   --accent-bright: oklch(0.74 0.185 45);
   --accent-ink: oklch(0.16 0.045 42);
   --accent-tint: oklch(0.64 0.192 42 / 0.12);
+
 }
-.shots{display:grid;gap:28px;margin-top:40px}
-@media(min-width:920px){.shots{grid-template-columns:1fr 1fr}.shots .full{grid-column:1/-1}}
+/* One column: these are 1440x900 captures of a dense results table, and a two-up row
+   renders them at ~450px, which is unreadable. Full width or not at all. */
+.shots{display:grid;gap:32px;margin-top:40px}
 .how-frame{margin-top:40px}
+.hero.scene { background-image: url("assets/scene.jpg"); }
+@media (max-width: 720px) { .hero.scene { background-image: url("assets/scene-tall.jpg"); } }
 .family{flex-wrap:wrap}
 .family .gh{overflow-wrap:anywhere}
 </style>
@@ -34,24 +51,48 @@
 
 <main>
 
-<div class="hero">
+<div class="hero scene">
+  <canvas class="scene" data-mode="crucible" data-wide="assets/scene.jpg" data-tall="assets/scene-tall.jpg" aria-hidden="true"></canvas>
   <div class="wrap">
-    <h1>Crucible</h1>
-    <p class="tag">What survives quantization, abliteration, and serving.</p>
-    <p class="what">
-      Most leaderboards benchmark remote frontier APIs or unserved model snapshots. Your
-      GGUF on your hardware behind your server is a different artifact, and that is the one
-      your users get. Crucible talks to any running OpenAI-compatible server and evaluates
-      a model exactly as it is served: same chat template, same samplers, same tool-call
-      parsing. Base versus abliterated is the first-class workflow, and every run records
-      provenance hashes so a score shift is attributable.
-    </p>
-    <div class="cta-row">
-      <a class="btn primary" href="https://github.com/zaakirio/crucible">View on GitHub</a>
-      <a class="btn ghost" href="#quickstart">Quickstart</a>
-    </div>
-    <div class="hero-art">
-      <img src="assets/banner.svg" alt="crucible banner: a melt gradient from ember orange down to char, the crucible vessel motif" width="1280" height="320">
+    <div class="hero-grid">
+      <div>
+        <p class="wordmark">crucible</p>
+        <h1>What survives quantization, abliteration, and serving</h1>
+        <p class="what">
+          Your GGUF on your hardware behind your server is a different artifact from the
+          snapshot on a leaderboard, and it is the one your users get. Crucible evaluates a
+          model exactly as it is served: same chat template, same samplers, same tool-call
+          parsing. Base versus abliterated is the first-class workflow.
+        </p>
+        <div class="cta-row">
+          <a class="btn primary" href="https://github.com/zaakirio/crucible">View on GitHub</a>
+          <a class="btn ghost" href="#quickstart">Quickstart</a>
+        </div>
+      </div>
+
+      <div class="plate">
+        <div class="ph"><span class="accent">crucible compare</span><span class="sep">·</span><span>LFM2.5-1.2B</span><span class="right">Q4_K_M · base vs Heretic</span></div>
+        <div class="pb scroll">
+          <table>
+            <thead>
+              <tr><th>suite</th><th>base</th><th>abliterated</th><th>&Delta;</th></tr>
+            </thead>
+            <tbody>
+              <tr class="grp"><td colspan="4">sorrybench &middot; refusal profile, n=45</td></tr>
+              <tr><td>complied</td><td class="ink">8</td><td class="ink">34</td><td class="up">&uarr; +26</td></tr>
+              <tr><td>refused</td><td class="ink">26</td><td class="ink">5</td><td class="up">&darr; &minus;21</td></tr>
+              <tr><td>hedged</td><td class="ink">11</td><td class="ink">6</td><td class="up">&darr; &minus;5</td></tr>
+              <tr class="grp"><td colspan="4">gsm8k &middot; capability</td></tr>
+              <tr><td>accuracy</td><td class="ink">61%</td><td class="ink">66%</td><td class="up">&uarr; +5pp</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="refuse">
+          <span class="chip bad">flagged</span>
+          <span>rag_faithfulness dropped 25pp, past the compare view&rsquo;s 15pp threshold</span>
+          <span class="right dim">n=45 per refusal suite</span>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -170,5 +211,6 @@
   </div>
 </footer>
 
+<script src="assets/scene.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="#1a1210"/>
+  <!-- crucible: tapered vessel with a molten core -->
+  <path d="M8.5 10h15l-2.2 13.5a2 2 0 0 1-2 1.7h-6.6a2 2 0 0 1-2-1.7z" fill="#3a1a12"/>
+  <ellipse cx="16" cy="11.6" rx="6.6" ry="2.3" fill="#ff6a1e"/>
+  <ellipse cx="16" cy="11.4" rx="3.4" ry="1.2" fill="#ffd6a0"/>
+</svg>

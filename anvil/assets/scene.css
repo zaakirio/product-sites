@@ -1,0 +1,323 @@
+/* Foundry scene layer: the bespoke photographic hero, loaded after site.css.
+
+   Each product page keeps the family spine from site.css (breadcrumb, ledger, frames,
+   quickstart, footer) and adds this on top: a full-bleed scene hero with the wordmark and
+   headline over the plate, a data plate carrying the product's real evidence, and the
+   stats strip restyled as the anchor of the page.
+
+   Per-site knobs:
+     --stat-ink  stats-strip figure colour, set on :root (defaults to the accent)
+     data-subject="left" on .hero.scene flips the scrim when the plate's subject is on
+       the left, so the gradient always shields the copy rather than the photograph
+
+   The plate itself is NOT set here. Each page declares its own
+     .hero.scene { background-image: url("assets/scene.jpg") }
+   in its inline <style>, because a relative url() inside a custom property resolves
+   against this stylesheet's directory (assets/), not the document, which silently yields
+   assets/assets/scene.jpg. Declaring it in the page keeps the path document-relative. */
+
+:root {
+  --stat-ink: var(--accent-bright);
+}
+
+/* ── hero ──────────────────────────────────────────────────────────────── */
+
+.hero.scene {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  align-content: center;
+  min-height: min(88vh, 860px);
+  padding: clamp(40px, 7vw, 88px) 0 clamp(34px, 5vw, 64px);
+  border-bottom: 1px solid var(--line);
+  background-color: var(--bg-deep);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+@media (max-width: 720px) { .hero.scene { min-height: auto; } }
+
+/* The canvas carries the same plate as a live texture. It fades in only once the texture
+   has uploaded, so a slow GPU or a failed load leaves the CSS still image showing. */
+.hero.scene > canvas.scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: 0;
+  opacity: 0;
+  transition: opacity 600ms ease;
+  z-index: -2;
+}
+.hero.scene > canvas.scene.ready { opacity: 1; }
+
+/* Legibility scrim. Directional, because in every plate the subject sits on one side and
+   the copy sits on the other; a flat overlay would just mute the photograph. */
+.hero.scene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(to right,
+      oklch(0.09 0.006 50 / 0.95) 0%,
+      oklch(0.09 0.006 50 / 0.86) 26%,
+      oklch(0.09 0.006 50 / 0.45) 56%,
+      oklch(0.09 0.006 50 / 0.14) 100%),
+    linear-gradient(to bottom,
+      oklch(0.09 0.006 50 / 0.60) 0%,
+      transparent 22%,
+      transparent 62%,
+      oklch(0.09 0.006 50 / 0.72) 100%);
+}
+:root[style*="--plate-side: left"] .hero.scene::before,
+.hero.scene[data-subject="left"]::before {
+  background:
+    linear-gradient(to left,
+      oklch(0.09 0.006 50 / 0.95) 0%,
+      oklch(0.09 0.006 50 / 0.84) 30%,
+      oklch(0.09 0.006 50 / 0.40) 62%,
+      oklch(0.09 0.006 50 / 0.12) 100%),
+    linear-gradient(to bottom,
+      oklch(0.09 0.006 50 / 0.62) 0%,
+      transparent 24%,
+      transparent 60%,
+      oklch(0.09 0.006 50 / 0.74) 100%);
+}
+
+@media (max-width: 720px) {
+  /* Portrait plates put the subject low, so the scrim has to run top-down instead. */
+  .hero.scene::before,
+  .hero.scene[data-subject="left"]::before {
+    background: linear-gradient(to bottom,
+      oklch(0.09 0.006 50 / 0.93) 0%,
+      oklch(0.09 0.006 50 / 0.86) 42%,
+      oklch(0.09 0.006 50 / 0.62) 70%,
+      oklch(0.09 0.006 50 / 0.80) 100%);
+  }
+}
+
+.hero.scene > .wrap { position: relative; z-index: 1; }
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(28px, 4vw, 60px);
+  align-items: center;
+}
+@media (max-width: 940px) { .hero-grid { grid-template-columns: 1fr; gap: 30px; } }
+
+/* ── wordmark + headline ───────────────────────────────────────────────── */
+
+.wordmark {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: clamp(1.7rem, 1.2rem + 2.4vw, 2.9rem);
+  letter-spacing: -0.045em;
+  color: var(--accent-bright);
+  line-height: 1;
+  margin: 0;
+  text-transform: lowercase;
+}
+
+.hero.scene h1 {
+  margin: clamp(14px, 2vw, 22px) 0 0;
+  font-size: clamp(2.05rem, 1.5rem + 3.1vw, 3.7rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+  max-width: 21ch;
+  text-wrap: balance;
+}
+
+.hero.scene .what {
+  margin: clamp(16px, 2vw, 24px) 0 0;
+  max-width: 52ch;
+  color: var(--ink-mid);
+}
+
+.hero.scene .cta-row { margin-top: clamp(22px, 3vw, 34px); }
+
+/* Buttons sit over a photograph now, so the ghost variant needs a real surface. */
+.hero.scene .btn.ghost {
+  background: oklch(0.16 0.008 55 / 0.62);
+  backdrop-filter: blur(6px);
+  border-color: var(--line-strong);
+}
+.hero.scene .btn.ghost:hover { background: oklch(0.2 0.01 55 / 0.82); border-color: var(--accent); }
+
+/* ── data plate: the product's real evidence, over the scene ───────────── */
+
+.plate {
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  /* opaque enough to stay readable over the brightest part of a plate; the scenes run
+     from near-black to white-hot, and the hot end wins against anything lighter */
+  background: oklch(0.12 0.007 50 / 0.90);
+  backdrop-filter: blur(16px) saturate(1.1);
+  box-shadow: 0 24px 70px -30px oklch(0.05 0.01 50 / 0.9);
+  overflow: hidden;
+  font-family: var(--mono);
+  font-size: clamp(0.68rem, 0.6rem + 0.34vw, 0.82rem);
+  line-height: 1.55;
+}
+
+.plate > .ph {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-dim);
+  font-size: var(--step--1);
+}
+.plate > .ph .sep { opacity: 0.45; margin: 0 -8px; }
+.plate > .ph .accent { color: var(--accent-bright); }
+.plate > .ph .right { margin-left: auto; }
+/* Narrow: let the header run onto its own lines left-aligned rather than squeezing the
+   trailing item against the right edge and hyphenating the model name. Must come after the
+   margin-left: auto above, which has identical specificity and would otherwise win on order. */
+@media (max-width: 620px) {
+  .plate > .ph { flex-wrap: wrap; row-gap: 2px; }
+  .plate > .ph .right { margin-left: 0; }
+  .plate > .ph .sep { display: none; }
+}
+.plate > .pb { padding: 14px 16px; }
+.plate .scroll { overflow-x: auto; }
+
+/* a hairline data grid inside a plate. Columns carry their own inline padding so adjacent
+   headings never touch when the plate is narrow (BASE + ABLITERATED read as one word). */
+.plate table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.plate th {
+  text-align: right;
+  font-weight: 400;
+  color: var(--ink-dim);
+  font-size: 0.86em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0 0 8px 14px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.plate th:first-child { text-align: left; padding-left: 0; }
+.plate td {
+  padding: 5px 0 5px 14px;
+  border-bottom: 1px solid oklch(0.32 0.012 55 / 0.35);
+  text-align: right;
+  white-space: nowrap;
+}
+.plate td:first-child { text-align: left; color: var(--ink-mid); padding: 5px 18px 5px 0; }
+
+/* Narrow: buy back the width the delta column needs so it is not the thing that clips.
+   .scroll still catches anything that genuinely cannot fit. */
+@media (max-width: 620px) {
+  .plate th, .plate td { padding-left: 8px; }
+  .plate td:first-child { padding-right: 8px; }
+  .plate .scroll table { font-size: 0.95em; }
+}
+.plate tr:last-child td { border-bottom: none; }
+/* row group caption: lets rows carry the short leaf name instead of repeating the suite */
+.plate tr.grp td {
+  padding: 12px 0 4px;
+  border-bottom: none;
+  text-align: left;
+  color: var(--accent-bright);
+  font-size: 0.88em;
+  letter-spacing: 0.03em;
+  white-space: normal;
+}
+.plate tr.grp:first-child td { padding-top: 4px; }
+.plate .up { color: var(--ok); }
+.plate .down { color: oklch(0.66 0.19 25); }
+.plate .dim { color: var(--ink-dim); }
+.plate .hl { color: var(--accent-bright); }
+.plate .ink { color: var(--ink); }
+
+/* chips: citations, confidence badges, failure classes */
+.chip {
+  display: inline-block;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  padding: 0 5px;
+  font-size: 0.86em;
+  color: var(--ink-dim);
+  line-height: 1.5;
+}
+.chip.on { border-color: var(--accent); color: var(--accent-bright); }
+.chip.warn { border-color: var(--warn); color: var(--warn); }
+.chip.bad { border-color: oklch(0.6 0.18 25); color: oklch(0.72 0.17 25); }
+
+/* the honest footnote on a plate: the refusal, the flagged regression, the low field */
+.refuse {
+  display: flex;
+  align-items: center;
+  gap: 10px 12px;
+  flex-wrap: wrap;
+  padding: 11px 16px;
+  border-top: 1px dashed var(--line-strong);
+  color: var(--ink-dim);
+}
+.plate .right { margin-left: auto; }
+
+/* ── stats strip: the anchor ───────────────────────────────────────────── */
+
+.measured {
+  background: var(--bg-deep);
+  border-bottom: 1px solid var(--line);
+}
+.measured .wrap {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0;
+}
+.measured .cell {
+  padding: clamp(24px, 3.4vw, 40px) clamp(16px, 2vw, 26px);
+  border-inline-start: 1px solid var(--line);
+}
+.measured .cell:first-child { border-inline-start: none; padding-inline-start: 0; }
+.measured .v {
+  font-family: var(--mono);
+  font-size: clamp(1.75rem, 1.3rem + 1.9vw, 2.85rem);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  color: var(--stat-ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.measured .k {
+  margin-top: 10px;
+  color: var(--ink-dim);
+  font-size: var(--step--1);
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+.measured .src {
+  color: var(--ink-dim);
+  font-size: var(--step--1);
+  font-family: var(--mono);
+  padding: 0 0 clamp(20px, 3vw, 30px);
+  max-width: 100ch;
+  line-height: 1.6;
+}
+
+/* Stacked, the inline borders become one stray rule down the left edge. */
+@media (max-width: 560px) {
+  .measured .cell {
+    border-inline-start: none;
+    border-top: 1px solid var(--line);
+    padding-inline: 0;
+  }
+  .measured .cell:first-child { border-top: none; }
+}
+
+/* ── footer family band ────────────────────────────────────────────────── */
+
+footer nav a[aria-current="page"] { color: var(--accent-bright); }
+
+/* ── retire the duplicated banner art ──────────────────────────────────── */
+
+.hero-art { display: none; }
