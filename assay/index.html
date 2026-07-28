@@ -22,6 +22,7 @@
 <link rel="preload" as="image" href="assets/scene.jpg" media="(min-width: 721px)">
 <link rel="stylesheet" href="assets/site.css">
 <link rel="stylesheet" href="assets/scene.css">
+<link rel="stylesheet" href="assets/assay.css">
 <style>
 :root {
   --accent: oklch(0.75 0.14 87);
@@ -32,25 +33,12 @@
 .hero.scene { background-image: url("assets/scene.jpg"); }
 @media (max-width: 720px) { .hero.scene { background-image: url("assets/scene-tall.jpg"); } }
 
-/* The bead is the whole point of a fire assay, and it sits low-right in the plate, exactly
-   where a centred data panel lands. Anchor the crop to the top so the bead falls as low as
-   the frame allows, and top-align the grid so the panel clears it instead of covering it. */
-.hero.scene { background-position: center top; }
-.hero-grid { align-items: start; }
-@media (min-width: 941px) { .hero-grid > .plate { margin-top: 6px; } }
-
 .family { flex-wrap: wrap; }
 .family .gh { min-width: 0; overflow-wrap: anywhere; }
 .two-col > * { min-width: 0; }
 code { overflow-wrap: anywhere; }
 
-/* per-field meters: width is the real exact-match rate, so the 4% field looks like 4%.
-   Not named .bar, which site.css already uses for the terminal frame title bar. */
-.fields td:nth-child(2) { width: 46%; }
-.meter { position: relative; height: 8px; border-radius: 2px; background: oklch(0.30 0.010 60); overflow: hidden; }
-.meter span { position: absolute; inset: 0 auto 0 0; background: var(--accent); border-radius: 2px; }
-.meter.low span { background: oklch(0.62 0.18 25); }
-.meter.good span { background: var(--ok); }
+.sp { margin-left: auto; }
 </style>
 </head>
 <body>
@@ -67,59 +55,85 @@ code { overflow-wrap: anywhere; }
 <section class="hero scene" aria-labelledby="hero-h">
   <canvas class="scene" data-mode="assay" data-wide="assets/scene.jpg" data-tall="assets/scene-tall.jpg" aria-hidden="true"></canvas>
   <div class="wrap">
-    <div class="hero-grid">
-      <div>
-        <p class="wordmark">assay</p>
-        <h1 id="hero-h">Document extraction you can sign off on</h1>
-        <p class="what">The invoice failure modes that cost money are a wrong total posted silently and a duplicate payment from a mis-keyed number, so the bar is not &ldquo;usually right&rdquo;.
-        Assay extracts, validates against business rules, scores its own confidence, and routes anything uncertain to a human queue. Its centerpiece is a per-field eval harness that tells you which fields you can trust before go-live.</p>
-        <div class="cta-row">
-          <a class="btn primary" href="https://github.com/zaakirio/assay">View on GitHub</a>
-          <a class="btn ghost" href="#quickstart">Quickstart</a>
+    <p class="wordmark">assay</p>
+    <h1 id="hero-h">Document extraction you can sign off on</h1>
+    <p class="what">The invoice failure modes that cost money are a wrong total posted silently and a duplicate payment from a mis-keyed number, so the bar is not &ldquo;usually right&rdquo;.
+    Assay extracts against a schema, validates, scores its own confidence per field, and routes anything it doubts to a human instead of the ERP.</p>
+    <div class="cta-row">
+      <a class="btn primary" href="https://github.com/zaakirio/assay">View on GitHub</a>
+      <a class="btn ghost" href="#quickstart">Quickstart</a>
+    </div>
+
+    <!-- One real document from the SROIE test set, start to finish. The model gets the
+         company wrong here: the receipt opens with the cashier's name and the business name
+         is three lines down. That is the failure the page is built to show. -->
+    <div class="extract">
+      <figure class="paper">
+<pre>
+<mark class="picked" data-src="company">TAN CHAY YEE</mark>
+*** COPY ***
+<mark class="truth">OJC MARKETING SDN BHD</mark>
+ROC NO: 538358-H
+<mark data-src="address">NO 2 &amp; 4
+BANDAR SERI ALAM
+81750 MASAI</mark>
+TEL:07-388 2218 FAX:07-388 8218
+EMAIL:NG@OJCGROUP.COM
+TAX INVOICE
+INVOICE NO : PEGIV-1030765
+<mark data-src="date">DATE : 15/01/2019 11:05:16 AM</mark>
+CASHIER : NG CHUAN MIN
+SALES PERSON : FATIN
+BILL TO : THE PEAK QUARRY WORKS
+DESCRIPTION QTY PRICE AMOUNT
+000000111 1 193.00 193.00 SR
+KINGS SAFETY SHOES KWD B05
+QTY: 1 TOTAL EXCLUDE GST: 193.00
+TOTAL GST @6%: 0.00
+<mark data-src="total">TOTAL: 193.00</mark>
+VISA CARD 193.00
+GOODS SOLD ARE NOT RETURNABLE &amp; REFUNDABLE
+****THANK YOU. PLEASE COME AGAIN.****
+</pre>
+        <figcaption>SROIE 2019 test set &middot; X00016469670 &middot; OCR text, verbatim</figcaption>
+      </figure>
+
+      <div class="bench">
+        <div class="bh"><b>extracted</b> <span>schema-constrained &middot; 937+111 tok &middot; 1.08 s</span></div>
+
+        <div class="field wrong" data-field="company">
+          <div class="k"><b>company</b> <span>picked the wrong header line</span></div>
+          <div class="v">&ldquo;TAN CHAY YEE&rdquo;</div>
+          <div class="t">truth <i>&ldquo;OJC MARKETING SDN BHD&rdquo;</i></div>
+        </div>
+
+        <!-- Field order follows the receipt, not the schema, so the callout wires run
+             monotonically down the page instead of crossing each other. -->
+        <div class="field wrong" data-field="address">
+          <div class="k"><b>address</b> <span>model flagged its own doubt</span></div>
+          <div class="v">&ldquo;2 &amp; 4 Bandar Seri Alam, 81750 Masai, Bandar Seri Alam&rdquo;</div>
+          <div class="t">truth <i>&ldquo;NO 2 &amp; 4, JALAN BAYU 4, BANDAR SERI ALAM, B1750 MASAI, JOHOR&rdquo;</i></div>
+        </div>
+
+        <div class="field" data-field="date">
+          <div class="k"><b>date</b> <span>normalised</span></div>
+          <div class="v">2019-01-15</div>
+          <div class="t">truth <i>matches</i></div>
+        </div>
+
+        <div class="field" data-field="total">
+          <div class="k"><b>total</b> <span>model flagged its own doubt</span></div>
+          <div class="v">193.00</div>
+          <div class="t">truth <i>matches</i></div>
+        </div>
+
+        <div class="verdict">
+          <div class="row"><span class="big">confidence 0.83</span> <span>below the 0.85 threshold</span> <span class="sp"><span class="chip warn">routed to review</span></span></div>
+          <div class="why">Nothing reached the ERP. On this run 74% of receipts routed to a human, and every single one of the 26% auto-accepted had at least one wrong field, almost always the address. That is why address can never be an auto-accept criterion.</div>
         </div>
       </div>
 
-      <div class="plate">
-        <div class="ph"><span class="accent">per-field report</span><span class="sep">·</span><span>SROIE 2019</span><span class="right">first 50 of 361 receipts</span></div>
-        <div class="pb scroll">
-          <table class="fields">
-            <thead>
-              <tr><th>field</th><th>exact match</th><th>rate</th><th>route</th></tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>total</td>
-                <td><div class="meter good"><span style="width:86%"></span></div></td>
-                <td class="ink">86.0%</td>
-                <td><span class="chip on">accept</span></td>
-              </tr>
-              <tr>
-                <td>company</td>
-                <td><div class="meter"><span style="width:60%"></span></div></td>
-                <td class="ink">60.0%</td>
-                <td><span class="chip warn">review</span></td>
-              </tr>
-              <tr>
-                <td>date</td>
-                <td><div class="meter"><span style="width:56%"></span></div></td>
-                <td class="ink">56.0%</td>
-                <td><span class="chip warn">review</span></td>
-              </tr>
-              <tr>
-                <td>address</td>
-                <td><div class="meter low"><span style="width:4%"></span></div></td>
-                <td class="ink">4.0%</td>
-                <td><span class="chip bad">never</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="refuse">
-          <span class="chip bad">2.0%</span>
-          <span>doc accuracy, all four fields correct</span>
-          <span class="right dim">0 schema failures</span>
-        </div>
-      </div>
+      <svg class="wires" aria-hidden="true"></svg>
     </div>
   </div>
 </section>
@@ -251,5 +265,6 @@ schema failures               <span class="ok">0</span></pre>
 </footer>
 
 <script src="assets/scene.js" defer></script>
+<script src="assets/assay-wires.js" defer></script>
 </body>
 </html>

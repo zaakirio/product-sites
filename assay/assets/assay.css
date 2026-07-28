@@ -1,0 +1,189 @@
+/* assay: the document / metrology idiom.
+
+   This page deliberately does NOT use the shared .plate component the other product sites
+   use. Assay's subject is a piece of paper going into a schema, so its hero is built from a
+   real scanned receipt rendered as actual paper, wired across to the extracted fields with
+   assayer's-bench callout lines. The light paper surface is unique in the suite; nothing
+   else here has one, which is most of what makes this page read as its own product.
+
+   Every value on this page comes from one real run over SROIE test document X00016469670.
+   The company field is wrong in that run, and the page says so. */
+
+:root {
+  --paper: oklch(0.87 0.018 84);
+  --paper-2: oklch(0.81 0.020 82);
+  --paper-ink: oklch(0.30 0.020 60);
+  --paper-dim: oklch(0.48 0.018 62);
+  --rule: oklch(0.75 0.13 87 / 0.42);
+  --bad: oklch(0.62 0.19 25);
+}
+
+/* ── hero: one column, the evidence below the claim ─────────────────────── */
+
+.hero.scene h1 { max-width: 24ch; color: var(--accent-bright); }
+.hero.scene .what { max-width: 56ch; }
+
+/* the extraction band sits left of the cupel, so the bead stays visible */
+.extract {
+  position: relative;
+  margin-top: clamp(26px, 3.4vw, 44px);
+  width: min(100%, 860px);
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1fr);
+  gap: clamp(28px, 5vw, 74px);
+  align-items: start;
+}
+@media (max-width: 900px) { .extract { grid-template-columns: 1fr; gap: 22px; width: 100%; } }
+
+/* ── the paper ─────────────────────────────────────────────────────────── */
+
+.paper {
+  margin: 0;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 3px, oklch(0.30 0.02 60 / 0.022) 3px 4px),
+    linear-gradient(158deg, var(--paper) 0%, var(--paper-2) 100%);
+  color: var(--paper-ink);
+  border-radius: 2px;
+  padding: 16px 16px 14px;
+  transform: rotate(-0.7deg);
+  box-shadow:
+    0 1px 0 oklch(1 0 0 / 0.35) inset,
+    0 26px 50px -22px oklch(0.05 0.01 60 / 0.85),
+    0 3px 10px -4px oklch(0.05 0.01 60 / 0.5);
+  /* torn-looking bottom edge, kept very subtle */
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 5px), 96% 100%, 74% calc(100% - 4px),
+                     52% 100%, 28% calc(100% - 3px), 8% 100%, 0 calc(100% - 4px));
+}
+
+.paper pre {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: clamp(0.5rem, 0.42rem + 0.34vw, 0.63rem);
+  line-height: 1.52;
+  white-space: pre;
+  overflow-x: auto;
+  letter-spacing: -0.02em;
+}
+.paper figcaption {
+  margin-top: 12px;
+  padding-top: 9px;
+  border-top: 1px dashed oklch(0.30 0.02 60 / 0.28);
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  color: var(--paper-dim);
+  letter-spacing: 0.02em;
+  transform: none;
+}
+
+/* Every anchored line gets a faint rule so it is visible which lines the wires pull from.
+   The two the model had to choose between are additionally tinted. */
+.paper mark {
+  background: none;
+  color: var(--paper-ink);
+  position: relative;
+  border-bottom: 1px dotted oklch(0.48 0.10 80 / 0.55);
+}
+.paper mark.picked {
+  background: oklch(0.62 0.19 25 / 0.16);
+  box-shadow: 0 0 0 1px oklch(0.62 0.19 25 / 0.45);
+  border-radius: 2px;
+}
+.paper mark.truth {
+  background: oklch(0.62 0.17 150 / 0.18);
+  box-shadow: 0 0 0 1px oklch(0.55 0.15 150 / 0.5);
+  border-radius: 2px;
+}
+
+/* ── the bench ledger: extracted fields, truth beside them ─────────────── */
+
+/* A soft wash, not a bordered card. The bench sits over the bright rim of the cupel, so it
+   needs a floor to stay legible, but giving it the other sites' .plate treatment (border,
+   radius, header bar) is exactly what made these pages look interchangeable. */
+.bench {
+  font-family: var(--mono);
+  padding: 2px 54px 16px 16px;
+  margin: -2px -54px 0 -16px;
+  /* fades to fully transparent so there is no hard vertical seam over the photograph */
+  background: linear-gradient(
+    96deg,
+    oklch(0.11 0.008 60 / 0.88) 0%,
+    oklch(0.11 0.008 60 / 0.84) 58%,
+    oklch(0.11 0.008 60 / 0.52) 86%,
+    oklch(0.11 0.008 60 / 0) 100%);
+}
+@media (max-width: 900px) { .bench { margin-inline: 0; padding-inline: 0; background: none; } }
+
+.bench .bh {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: baseline;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--rule);
+  font-size: var(--step--1);
+  color: var(--ink-dim);
+}
+.bench .bh b { color: var(--accent-bright); font-weight: 400; }
+
+
+.field {
+  padding: 11px 0 10px;
+  border-bottom: 1px solid oklch(0.75 0.13 87 / 0.16);
+  font-size: clamp(0.66rem, 0.58rem + 0.3vw, 0.78rem);
+}
+.field .k {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  color: var(--ink-dim);
+  font-size: 0.9em;
+}
+.field .k b { color: var(--ink); font-weight: 400; }
+.field .v {
+  margin-top: 4px;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+.field.wrong .v { color: oklch(0.74 0.16 25); }
+.field .t {
+  margin-top: 3px;
+  color: var(--ink-dim);
+  overflow-wrap: anywhere;
+  font-size: 0.94em;
+}
+.field .t i { font-style: normal; color: var(--ok); }
+
+/* verdict: the routing decision this page exists to justify */
+.verdict {
+  margin-top: 16px;
+  padding: 13px 14px;
+  border: 1px solid var(--warn);
+  border-radius: 6px;
+  background: oklch(0.20 0.03 85 / 0.5);
+  font-family: var(--mono);
+  font-size: clamp(0.66rem, 0.58rem + 0.3vw, 0.78rem);
+  line-height: 1.6;
+}
+.verdict .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+.verdict .big { color: var(--warn); }
+.verdict .why { margin-top: 6px; color: var(--ink-dim); }
+
+/* ── callout wires: drawn from the DOM by assay-wires.js ────────────────── */
+
+.wires {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  opacity: 0;
+  transition: opacity 500ms ease;
+}
+.wires.on { opacity: 1; }
+.wires path { fill: none; stroke: var(--accent); stroke-width: 1; opacity: 0.75; }
+.wires path.wrong { stroke: var(--bad); opacity: 0.85; }
+.wires circle { fill: var(--accent); }
+.wires circle.wrong { fill: var(--bad); }
+/* stacked layout: the wires would run through the copy, so they are not drawn at all */
+@media (max-width: 900px) { .wires { display: none; } }
