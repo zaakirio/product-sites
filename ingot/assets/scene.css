@@ -169,19 +169,24 @@
   display: flex;
   align-items: baseline;
   gap: 14px;
+  row-gap: 2px;
   padding: 11px 16px;
   border-bottom: 1px solid var(--line);
   color: var(--ink-dim);
   font-size: var(--step--1);
+  /* Wrap between items, never inside them. Under nowrap, flex shrinks the items instead and
+     the text breaks mid-token ("crucible / compare", "LFM2.5- / 1.2B"). This header sits
+     within ~20px of its box at 1440px once Martian Mono loads, so it does go over. */
+  flex-wrap: wrap;
 }
+.plate > .ph > * { white-space: nowrap; }
 .plate > .ph .sep { opacity: 0.45; margin: 0 -8px; }
 .plate > .ph .accent { color: var(--accent-bright); }
 .plate > .ph .right { margin-left: auto; }
-/* Narrow: let the header run onto its own lines left-aligned rather than squeezing the
-   trailing item against the right edge and hyphenating the model name. Must come after the
-   margin-left: auto above, which has identical specificity and would otherwise win on order. */
+/* Narrow: run the header down the left edge instead of stranding the trailing item on the
+   right. Must come after the margin-left: auto above, which has identical specificity and
+   would otherwise win on order. */
 @media (max-width: 620px) {
-  .plate > .ph { flex-wrap: wrap; row-gap: 2px; }
   .plate > .ph .right { margin-left: 0; }
   .plate > .ph .sep { display: none; }
 }
