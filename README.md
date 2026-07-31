@@ -3,7 +3,7 @@
 Static landing pages for the foundry product family, served at `<product>.zaakir.io`, plus the family map at `foundry.zaakir.io`.
 One nginx image serves the Foundry map and all seven product sites, routed by Host header (`nginx.conf`), plus `vellichor.ikarza.com`.
 A push to `main` runs `.woodpecker.yml`, which builds and pushes `ghcr.io/zaakirio/product-sites:<commit-sha>`.
-Tags are commit-SHA only, with no `latest`, so a push publishes an image but does not move production on its own: the tag in `ikarza-gitops-infra/apps/product-sites` has to point at the new SHA before ArgoCD rolls it out.
+Tags are commit-SHA only, with no `latest`. Argo CD Image Updater watches `ghcr.io/zaakirio/product-sites` for 40-hex tags (`newest-build`), commits the new SHA to `ikarza-gitops-infra/apps/product-sites/.argocd-source-product-sites.yaml`, and ArgoCD rolls it out, so a push deploys itself once the image is published.
 Every number on these pages comes from the product's real README or eval artifacts; if a page and its repo disagree, the repo wins.
 
 ## Design system
